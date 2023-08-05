@@ -1,0 +1,4 @@
+PyQt6
+pyqtdarktheme
+cx_Oracle
+pyinstaller
