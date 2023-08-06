@@ -32,11 +32,7 @@ class employees(QMainWindow):
         self.setWindowTitle(windowTitle)
 
         # set WINDOW ICON (icons from icons8.com)
-        self.setWindowIcon(
-            QIcon(
-                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/employees.png"
-            )
-        )
+        self.setWindowIcon(QIcon("./assets/bank.png"))
 
         # Set window size
         width = 800
@@ -59,9 +55,8 @@ class employees(QMainWindow):
         menuBar = self.menuBar()  # Get the QMenuBar from the QMainWindow
 
         # Create QMenus
-        fileMenu = menuBar.addMenu(
-            "&File"
-        )  # Add the QMenu to the QMenuBar # type: ignore
+        # # Add the QMenu to the QMenuBar
+        fileMenu = menuBar.addMenu("&File")  # type: ignore
         editMenu = menuBar.addMenu("&Edit")  # type: ignore
         viewMenu = menuBar.addMenu("&View")  # type: ignore
         helpMenu = menuBar.addMenu("&Help")  # type: ignore
@@ -71,7 +66,7 @@ class employees(QMainWindow):
         # 'Add' menu item
         addAction = QAction(
             QIcon(
-                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/add.png"
+                "./assets/add.png"
             ),
             "&Add",
             self,

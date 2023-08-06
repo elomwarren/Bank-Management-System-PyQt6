@@ -27,7 +27,7 @@ class hrDashboard(QMainWindow):
         self.setWindowTitle(windowTitle)
 
         # set WINDOW ICON (icons from icons8.com)
-        self.setWindowIcon(QIcon('D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/dashboard.png'))
+        self.setWindowIcon(QIcon("./assets/bank.png"))
 
         # Set window size 
         width = 800
@@ -56,47 +56,47 @@ class hrDashboard(QMainWindow):
         ######################### ADD WIDGETS #########################
 
         # Dashboard label
-        dashboardLabel = QLabel('DASHBOARD')
-        dashboardLabel.setFont(QFont("Century", 28))
-        dashboardLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.dashboardLabel = QLabel('DASHBOARD')
+        self.dashboardLabel.setFont(QFont("Century", 28))
+        self.dashboardLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # Entities Label
-        entitiesLabel = QLabel('Entities')
-        entitiesLabel.setFont(QFont("Century", 16))
-        entitiesLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.entitiesLabel = QLabel('Entities')
+        self.entitiesLabel.setFont(QFont("Century", 16))
+        self.entitiesLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         ### Push buttons for entities ###
 
         # titles = ['Employees', 'Jobs', 'Departments', 'Branches', 'Locations', 'Regions']
         # buttons = [QPushButton(title) for title in titles]
 
-        employeesButton = QPushButton('Employees', clicked=lambda: open_employees())  # type: ignore
+        self.employeesButton = QPushButton('Employees', clicked=lambda: self.open_employees())  # type: ignore
 
-        jobsButton = QPushButton('Jobs', clicked=lambda: open_jobs())  # type: ignore
+        self.jobsButton = QPushButton('Jobs', clicked=lambda: self.open_jobs())  # type: ignore
 
-        departmentsButton = QPushButton('Departments', clicked=lambda: open_departments())  # type: ignore
+        self.departmentsButton = QPushButton('Departments', clicked=lambda: self.open_departments())  # type: ignore
 
-        branchesButton = QPushButton('Branches', clicked=lambda: open_branches())  # type: ignore
+        self.branchesButton = QPushButton('Branches', clicked=lambda: self.open_branches())  # type: ignore
 
-        locationsButton = QPushButton('Locations', clicked=lambda: open_locations())  # type: ignore
+        self.locationsButton = QPushButton('Locations', clicked=lambda: self.open_locations())  # type: ignore
 
-        regionsButton = QPushButton('Regions', clicked=lambda: open_regions())  # type: ignore
+        self.regionsButton = QPushButton('Regions', clicked=lambda: self.open_regions())  # type: ignore
 
         
         # Tool label
-        toolLabel = QLabel('Tools')
-        toolLabel.setFont(QFont("Century", 16))
-        toolLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.toolLabel = QLabel('Tools')
+        self.toolLabel.setFont(QFont("Century", 16))
+        self.toolLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # PUSH BUTTON FOR DATA QUERY WIZARD
-        dataQueryWizardButton = QPushButton('Data Query Wizard', clicked=lambda: dataQueryWizard())  # type: ignore
-        dataQueryWizardButton.setIcon(QIcon('D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/query.png'))
+        self.dataQueryWizardButton = QPushButton('Data Query Wizard', clicked=lambda: self.dataQueryWizard())  # type: ignore
+        self.dataQueryWizardButton.setIcon(QIcon("./assets/query.png"))
 
         # LOGOUT PUSH BUTTON
-        logoutButton = QPushButton('Logout', clicked=lambda: logout())  # type: ignore
+        self.logoutButton = QPushButton('Logout', clicked=lambda: self.logout())  # type: ignore
         
         # quit button
-        quitButton = QPushButton('Quit', clicked = lambda: quit()) # type: ignore
+        self.quitButton = QPushButton('Quit', clicked = lambda: self.quit()) # type: ignore
         ####################### END OF ADD WIDGETS #######################
 
 
@@ -107,36 +107,36 @@ class hrDashboard(QMainWindow):
         ### ADD WIDGETS TO LAYOUT ###
 
         # DASHBOARD LABEL
-        layout.addWidget(dashboardLabel)
+        layout.addWidget(self.dashboardLabel)
 
         # set space after Dashboard label
         layout.addSpacing(15)
 
         # Entities Label
-        layout.addWidget(entitiesLabel)
+        layout.addWidget(self.entitiesLabel)
 
         # Push buttons for entities
-        layout.addWidget(employeesButton)
-        layout.addWidget(jobsButton)
-        layout.addWidget(departmentsButton)
-        layout.addWidget(branchesButton)
-        layout.addWidget(locationsButton)
-        layout.addWidget(regionsButton)
+        layout.addWidget(self.employeesButton)
+        layout.addWidget(self.jobsButton)
+        layout.addWidget(self.departmentsButton)
+        layout.addWidget(self.branchesButton)
+        layout.addWidget(self.locationsButton)
+        layout.addWidget(self.regionsButton)
 
         # Tool label
-        layout.addWidget(toolLabel)
+        layout.addWidget(self.toolLabel)
 
         # Push button for Data Query Wizard
-        layout.addWidget(dataQueryWizardButton)
+        layout.addWidget(self.dataQueryWizardButton)
 
         # set space after Data Query Wizard button
         layout.addSpacing(20)
 
         # Logout Push button
-        layout.addWidget(logoutButton)
+        layout.addWidget(self.logoutButton)
         
         # Quit Push button
-        layout.addWidget(quitButton)
+        layout.addWidget(self.quitButton)
 
         ### SET CONTENT MARGINS ###
         layout.setContentsMargins(250, 150, 250, 75) # left, top, right, bottom
@@ -152,64 +152,64 @@ class hrDashboard(QMainWindow):
         ####################################
 
 
-        ##################### BUTTON FUNCTIONS #####################
+    ##################### BUTTON FUNCTIONS #####################
 
-        def open_employees():
-            # print('Employees')
-            self.employees = employees()
-            self.hide()
-            self.employees.show()
+    def open_employees(self):
+        # print('Employees')
+        self.employees = employees()
+        self.hide()
+        self.employees.show()
 
-        def open_jobs():
-            # print('Jobs')
-            self.jobs = jobs()
-            self.hide()
-            self.jobs.show()
+    def open_jobs(self):
+        # print('Jobs')
+        self.jobs = jobs()
+        self.hide()
+        self.jobs.show()
 
-        def open_departments():
-            # print('Departments')
-            self.departments = departments()
-            self.hide()
-            self.departments.show()
+    def open_departments(self):
+        # print('Departments')
+        self.departments = departments()
+        self.hide()
+        self.departments.show()
 
-        def open_branches():
-            # print('Branches')
-            self.branches =  branches()
-            self.hide()
-            self.branches.show()
+    def open_branches(self):
+        # print('Branches')
+        self.branches =  branches()
+        self.hide()
+        self.branches.show()
 
-        def open_locations():
-            # print('Locations')
-            self.locations = locations()
-            self.hide()
-            self.locations.show()
+    def open_locations(self):
+        # print('Locations')
+        self.locations = locations()
+        self.hide()
+        self.locations.show()
 
-        def open_regions():
-            # print('Regions')
-            self.regions = regions()
-            self.hide()
-            self.regions.show()
+    def open_regions(self):
+        # print('Regions')
+        self.regions = regions()
+        self.hide()
+        self.regions.show()
 
-        # Push button for Data Query Wizard
-        def dataQueryWizard():
-            # print('Data Query Wizard')
-            self.queryInterface = queryInterface()
-            self.hide()
-            self.queryInterface.show()
+    # Push button for Data Query Wizard
+    def dataQueryWizard(self):
+        # print('Data Query Wizard')
+        self.queryInterface = queryInterface()
+        self.hide()
+        self.queryInterface.show()
 
-        # Logout Push button
-        def logout():
-            # print('Logout')
-            from win_01_WelcomeLogin import welcome
-            self.welcome = welcome()
-            self.hide()
-            self.welcome.show()
+    # Logout Push button
+    def logout(self):
+        # print('Logout')
+        from win_01_WelcomeLogin import welcome
+        self.welcome = welcome()
+        self.hide()
+        self.welcome.show()
 
-        # Quit button
-        def quit():
-            self.close()
+    # Quit button
+    def quit(self):
+        self.close()
 
-        ##################### END OF BUTTON FUNCTIONS #####################
+    ##################### END OF BUTTON FUNCTIONS #####################
 
     ##################### CENTER FUNCTION #####################
     def showEvent(self, event):
@@ -248,9 +248,6 @@ if __name__ == '__main__':
         hrdashwindow.show()
 
         # DARK THEME
-        # https://pypi.org/project/pyqtdarktheme/
-        # pip install pyqtdarktheme
-        # Apply the complete dark theme to Qt App.
         qdarktheme.setup_theme("auto")
 
         # start the event loop

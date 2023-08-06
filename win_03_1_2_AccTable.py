@@ -42,11 +42,7 @@ class accounts(QMainWindow):
         self.setWindowTitle(windowTitle)
 
         # set WINDOW ICON (icons from icons8.com)
-        self.setWindowIcon(
-            QIcon(
-                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/account.png"
-            )
-        )
+        self.setWindowIcon(QIcon("./assets/bank.png"))
 
         # Set window size
         width = 800
@@ -1056,9 +1052,6 @@ if __name__ == "__main__":
         accwindow.show()
 
         # DARK THEME
-        # https://pypi.org/project/pyqtdarktheme/
-        # pip install pyqtdarktheme
-        # Apply the complete dark theme to Qt App.
         qdarktheme.setup_theme("auto")
 
         # start the event loop

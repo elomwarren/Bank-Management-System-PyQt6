@@ -1,8 +1,19 @@
-from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QLabel, 
-                             QToolBar, QLineEdit, QPushButton, QVBoxLayout, 
-                             QHBoxLayout, QFormLayout, QDockWidget, 
-                             QTableWidget, QTableWidgetItem, QMessageBox
-                             )
+from PyQt6.QtWidgets import (
+    QApplication,
+    QMainWindow,
+    QWidget,
+    QLabel,
+    QToolBar,
+    QLineEdit,
+    QPushButton,
+    QVBoxLayout,
+    QHBoxLayout,
+    QFormLayout,
+    QDockWidget,
+    QTableWidget,
+    QTableWidgetItem,
+    QMessageBox,
+)
 from PyQt6.QtGui import QFont
 from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtGui import QGuiApplication, QIcon, QAction
@@ -11,18 +22,19 @@ import cx_Oracle
 import qdarktheme
 import sys
 
+
 class departments(QMainWindow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         # set the window title
-        windowTitle = 'Departments'
+        windowTitle = "Departments"
         self.setWindowTitle(windowTitle)
 
         # set WINDOW ICON (icons from icons8.com)
-        self.setWindowIcon(QIcon('D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/department.png'))
+        self.setWindowIcon(QIcon("./assets/bank.png"))
 
-        # Set window size 
+        # Set window size
         width = 800
         height = 600
         self.resize(width, height)
@@ -36,110 +48,168 @@ class departments(QMainWindow):
         # create the UI
         self.initUI()
 
-
     def initUI(self):
-
         ##### MENU BAR #####
 
         # Create menu bar
-        menuBar = self.menuBar() # Get the QMenuBar from the QMainWindow
-        
+        menuBar = self.menuBar()  # Get the QMenuBar from the QMainWindow
+
         # Create QMenus
-        fileMenu = menuBar.addMenu('&File') # Add the QMenu to the QMenuBar # type: ignore
-        editMenu = menuBar.addMenu('&Edit') # type: ignore
-        viewMenu = menuBar.addMenu('&View') # type: ignore
-        helpMenu = menuBar.addMenu('&Help') # type: ignore
+        # Add the QMenu to the QMenuBar
+        fileMenu = menuBar.addMenu("&File")  # type: ignore
+        editMenu = menuBar.addMenu("&Edit")  # type: ignore
+        viewMenu = menuBar.addMenu("&View")  # type: ignore
+        helpMenu = menuBar.addMenu("&Help")  # type: ignore
 
         ### File Menu ###
 
         # 'Add' menu item
-        addAction = QAction(QIcon('D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/add.png'), '&Add', self)
-        addAction.setStatusTip('Add a new customer')
-        addAction.setShortcut('Ctrl+N')
+        addAction = QAction(QIcon("./assets/add.png"), "&Add", self)
+        addAction.setStatusTip("Add a new customer")
+        addAction.setShortcut("Ctrl+N")
         addAction.triggered.connect(self.newRecord)
-        fileMenu.addAction(addAction) # type: ignore
+        fileMenu.addAction(addAction)  # type: ignore
 
         # 'Delete' menu item
-        delAction = QAction(QIcon('D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/remove.png'), '&Delete', self)
-        delAction.setStatusTip('Delete a customer')
-        delAction.setShortcut('Del')
+        delAction = QAction(
+            QIcon(
+                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/remove.png"
+            ),
+            "&Delete",
+            self,
+        )
+        delAction.setStatusTip("Delete a customer")
+        delAction.setShortcut("Del")
         delAction.triggered.connect(self.delRecord)
-        fileMenu.addAction(delAction) # type: ignore
+        fileMenu.addAction(delAction)  # type: ignore
 
         # 'Save' menu item
-        saveAction = QAction(QIcon('D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/save.png'), '&Save Changes', self)
-        saveAction.setStatusTip('Save (Commit) changes to the database')
-        saveAction.setShortcut('Ctrl+S')
+        saveAction = QAction(
+            QIcon(
+                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/save.png"
+            ),
+            "&Save Changes",
+            self,
+        )
+        saveAction.setStatusTip("Save (Commit) changes to the database")
+        saveAction.setShortcut("Ctrl+S")
         saveAction.triggered.connect(self.saveChanges)
 
         # add Sepaaratora after save
-        fileMenu.addSeparator() # type: ignore
+        fileMenu.addSeparator()  # type: ignore
 
         # 'Exit' menu item
-        exitAction = QAction(QIcon('D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/exit.png'), '&Exit', self)
-        exitAction.setStatusTip('Exit')
-        exitAction.setShortcut('Alt+F4')
+        exitAction = QAction(
+            QIcon(
+                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/exit.png"
+            ),
+            "&Exit",
+            self,
+        )
+        exitAction.setStatusTip("Exit")
+        exitAction.setShortcut("Alt+F4")
         exitAction.triggered.connect(self.close)
-        fileMenu.addAction(exitAction) # type: ignore
+        fileMenu.addAction(exitAction)  # type: ignore
 
         ### Edit Menu ###
 
         # 'Undo' menu item
-        undoAction = QAction(QIcon('D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/undo.png'), '&Undo', self)
-        undoAction.setStatusTip('Undo')
-        undoAction.setShortcut('Ctrl+Z')
+        undoAction = QAction(
+            QIcon(
+                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/undo.png"
+            ),
+            "&Undo",
+            self,
+        )
+        undoAction.setStatusTip("Undo")
+        undoAction.setShortcut("Ctrl+Z")
         undoAction.triggered.connect(self.undoChanges)
-        editMenu.addAction(undoAction) # type: ignore
+        editMenu.addAction(undoAction)  # type: ignore
 
         # 'Redo' menu item
-        redoAction = QAction(QIcon('D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/redo.png'), '&Redo', self)
-        redoAction.setStatusTip('Redo')
-        redoAction.setShortcut('Ctrl+Y')
+        redoAction = QAction(
+            QIcon(
+                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/redo.png"
+            ),
+            "&Redo",
+            self,
+        )
+        redoAction.setStatusTip("Redo")
+        redoAction.setShortcut("Ctrl+Y")
         redoAction.triggered.connect(self.redoChanges)
-        editMenu.addAction(redoAction) # type: ignore
+        editMenu.addAction(redoAction)  # type: ignore
 
         # add Separator
-        editMenu.addSeparator() # type: ignore
+        editMenu.addSeparator()  # type: ignore
 
         # 'Cut' menu item
-        cutAction = QAction(QIcon('D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/cut.png'), '&Cut', self)
-        cutAction.setStatusTip('Cut')
-        cutAction.setShortcut('Ctrl+X')
+        cutAction = QAction(
+            QIcon(
+                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/cut.png"
+            ),
+            "&Cut",
+            self,
+        )
+        cutAction.setStatusTip("Cut")
+        cutAction.setShortcut("Ctrl+X")
         cutAction.triggered.connect(self.cut)
-        editMenu.addAction(cutAction) # type: ignore
+        editMenu.addAction(cutAction)  # type: ignore
 
         # 'Copy' menu item
-        copyAction = QAction(QIcon('D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/copy.png'), '&Copy', self)
-        copyAction.setStatusTip('Copy')
-        copyAction.setShortcut('Ctrl+C')
+        copyAction = QAction(
+            QIcon(
+                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/copy.png"
+            ),
+            "&Copy",
+            self,
+        )
+        copyAction.setStatusTip("Copy")
+        copyAction.setShortcut("Ctrl+C")
         copyAction.triggered.connect(self.copy)
-        editMenu.addAction(copyAction) # type: ignore
+        editMenu.addAction(copyAction)  # type: ignore
 
         # 'Paste' menu item
-        pasteAction = QAction(QIcon('D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/paste.png'), '&Paste', self)
-        pasteAction.setStatusTip('Paste')
-        pasteAction.setShortcut('Ctrl+V')
+        pasteAction = QAction(
+            QIcon(
+                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/paste.png"
+            ),
+            "&Paste",
+            self,
+        )
+        pasteAction.setStatusTip("Paste")
+        pasteAction.setShortcut("Ctrl+V")
         pasteAction.triggered.connect(self.paste)
-        editMenu.addAction(pasteAction) # type: ignore
+        editMenu.addAction(pasteAction)  # type: ignore
 
         ### View menu ###
 
         # 'Search' menu item
-        searchAction  = QAction(QIcon('D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/search.png'), '&Search', self)
-        searchAction.setStatusTip('Search')
-        searchAction.setShortcut('Ctrl+F')
+        searchAction = QAction(
+            QIcon(
+                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/search.png"
+            ),
+            "&Search",
+            self,
+        )
+        searchAction.setStatusTip("Search")
+        searchAction.setShortcut("Ctrl+F")
         searchAction.triggered.connect(self.searchdock)
-        viewMenu.addAction(searchAction) # type: ignore
+        viewMenu.addAction(searchAction)  # type: ignore
 
         ### Help menu ###
 
         # 'About' menu item
-        aboutAction = QAction(QIcon('D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/info.png'), '&About', self)
-        aboutAction.setStatusTip('Help')
-        aboutAction.setShortcut('F1')
+        aboutAction = QAction(
+            QIcon(
+                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/info.png"
+            ),
+            "&About",
+            self,
+        )
+        aboutAction.setStatusTip("Help")
+        aboutAction.setShortcut("F1")
         aboutAction.triggered.connect(self.about)
-        helpMenu.addAction(aboutAction) # type: ignore
-
+        helpMenu.addAction(aboutAction)  # type: ignore
 
         ##### END OF MENU BAR #####
 
@@ -147,7 +217,7 @@ class departments(QMainWindow):
 
         # Create toolbar
 
-        toolBar = QToolBar('Main ToolBar')
+        toolBar = QToolBar("Main ToolBar")
         self.addToolBar(toolBar)
         toolBar.setIconSize(QSize(25, 25))
 
@@ -175,19 +245,19 @@ class departments(QMainWindow):
         # Create status bar
         statusBar = self.statusBar()
         # display the a message in 5 seconds
-        statusBar.showMessage('Ready', 5000) # type: ignore
+        statusBar.showMessage("Ready", 5000)  # type: ignore
 
         ########################### ADD WIDGETS ###########################
 
         ### VBOX WIDGETS ###
         # Entity label
-        tableLabel = QLabel('DEPARTMENTS')
+        tableLabel = QLabel("DEPARTMENTS")
 
         # Entity Table
         table = QTableWidget()
 
         # BACK BUTTON
-        backButton = QPushButton('Back', clicked=lambda: back())  # type: ignore
+        backButton = QPushButton("Back", clicked=lambda: back())  # type: ignore
 
         ### END OF VBOX WIDGETS ###
 
@@ -199,9 +269,8 @@ class departments(QMainWindow):
         # Department Name field
         depNameField = QLineEdit()
 
-
         # ADD BUTTON
-        addButton = QPushButton('Add', clicked=lambda: add())  # type: ignore
+        addButton = QPushButton("Add", clicked=lambda: add())  # type: ignore
 
         ### END OF CREATION NEW CUSTOMER FORM WIDGETS ###
 
@@ -209,24 +278,20 @@ class departments(QMainWindow):
 
         # Search Field
         SearchField = QLineEdit()
-        SearchField.setPlaceholderText('Enter a search term')
+        SearchField.setPlaceholderText("Enter a search term")
 
         # SEARCH BUTTON
-        SearchButton = QPushButton('Search', clicked= lambda: search())  # type: ignore
+        SearchButton = QPushButton("Search", clicked=lambda: search())  # type: ignore
 
         # ADD FILTER BUTTON
         # !!! CONSIDER ADDING FILTER BUTTON !!!
 
-
         ### END OF SEARCH FORM WIDGETS ###
-
-
 
         ####################### END OF ADD WIDGETS ########################
 
-
         ############################ LAYOUT ############################
-        
+
         hbox = QHBoxLayout()
         vbox = QVBoxLayout()
         NewForm = QFormLayout()
@@ -255,7 +320,9 @@ class departments(QMainWindow):
             # Display the results in the table
             table.setColumnCount(len(cursor.description))
             table.setRowCount(len(result))
-            table.setHorizontalHeaderLabels([description[0] for description in cursor.description])
+            table.setHorizontalHeaderLabels(
+                [description[0] for description in cursor.description]
+            )
 
             for row_idx, row in enumerate(result):
                 for col_idx, value in enumerate(row):
@@ -266,7 +333,11 @@ class departments(QMainWindow):
             connection.close()
 
         except cx_Oracle.Error as err:
-            failgetdatamsg =  QMessageBox.critical(self, 'Coundn\'t Fetch Data', '\n' + str(err) + '\n' + 'Please contact the database administrator')
+            failgetdatamsg = QMessageBox.critical(
+                self,
+                "Coundn't Fetch Data",
+                "\n" + str(err) + "\n" + "Please contact the database administrator",
+            )
 
         # BACK BUTTON
         vbox.addWidget(backButton, alignment=Qt.AlignmentFlag.AlignRight)
@@ -278,8 +349,8 @@ class departments(QMainWindow):
 
         ### ADD WIDGETS TO NewForm LAYOUT ###
 
-        NewForm.addRow('Department ID', depIDField)
-        NewForm.addRow('Department Name', depNameField)
+        NewForm.addRow("Department ID", depIDField)
+        NewForm.addRow("Department Name", depNameField)
         NewForm.addRow(addButton)
 
         ### END OF ADD WIDGETS TO NewForm LAYOUT ###
@@ -293,7 +364,7 @@ class departments(QMainWindow):
         ### SEARCH DOCK ###
 
         # ADD DOCK WIDGET FOR SEARCH
-        SearchDock = QDockWidget('Search')
+        SearchDock = QDockWidget("Search")
         # SearchDock.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, SearchDock)
 
@@ -310,7 +381,7 @@ class departments(QMainWindow):
 
         # ADD DOCK WIDGET FOR NEW RECORD
 
-        NewDock = QDockWidget('New Record')
+        NewDock = QDockWidget("New Record")
         # NewDock.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, NewDock)
 
@@ -321,7 +392,6 @@ class departments(QMainWindow):
         NewDockWidget.setLayout(NewForm)
         NewDock.setWidget(NewDockWidget)
 
-
         ### END OF NEW CUSTOMER DOCK ###
 
         ### Center window content ###
@@ -331,31 +401,30 @@ class departments(QMainWindow):
 
         ########################## END OF LAYOUT ##########################
 
-
         ##################### BUTTON FUNCTIONS #####################
 
         # BACK BUTTON
         def back():
             # print('Back')
             from win_02_2_HRDashboard import hrDashboard
+
             self.hrDashboard = hrDashboard()
             self.hide()
             self.hrDashboard.show()
 
         # ADD BUTTON
         def add():
-            print('New record added')
+            print("New record added")
 
         # SEARCH BUTTON
         def search():
-            print('Search')
-
+            print("Search")
 
         ##################### END OF BUTTON FUNCTIONS #####################
 
     ##################### MENU BAR FUNCTIONS ??? #####################
 
-    # Open New Record Dock 
+    # Open New Record Dock
     def newRecord(self):
         pass
 
@@ -395,8 +464,6 @@ class departments(QMainWindow):
     def about(self):
         pass
 
-
-
     ##################### END OF MENU BAR FUNCTIONS #####################
 
     ##################### CENTER FUNCTION #####################
@@ -407,24 +474,24 @@ class departments(QMainWindow):
     def center(self):
         frame = self.frameGeometry()
         screen = QGuiApplication.primaryScreen()
-        center = screen.availableGeometry().center() # type: ignore
+        center = screen.availableGeometry().center()  # type: ignore
         frame.moveCenter(center)
-        x = min(frame.topLeft().x(), screen.availableGeometry().right() - frame.width()) # type: ignore
-        y = min(frame.topLeft().y(), screen.availableGeometry().bottom() - frame.height()) # type: ignore
+        x = min(frame.topLeft().x(), screen.availableGeometry().right() - frame.width())  # type: ignore
+        y = min(frame.topLeft().y(), screen.availableGeometry().bottom() - frame.height())  # type: ignore
         self.move(x, y)
+
     ############################# END OF CENTER FUNCTION #############################
 
 
-
-if __name__ == '__main__':
-
+if __name__ == "__main__":
     try:
         # Include in try/except block if you're also targeting Mac/Linux
-        from ctypes import windll # only exists on Windows
-        myappid = 'mycompany.myproduct.subproduct.version'
+        from ctypes import windll  # only exists on Windows
+
+        myappid = "mycompany.myproduct.subproduct.version"
         windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
     # except ImportError:
-        # pass
+    # pass
     finally:
         # create the QApplication object
         app = QApplication(sys.argv)

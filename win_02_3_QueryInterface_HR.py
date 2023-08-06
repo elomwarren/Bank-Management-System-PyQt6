@@ -29,11 +29,7 @@ class queryInterface(QMainWindow):
         self.setWindowTitle(windowTitle)
 
         # set WINDOW ICON
-        self.setWindowIcon(
-            QIcon(
-                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/query.png"
-            )
-        )
+        self.setWindowIcon(QIcon("./assets/query.png"))
 
         # Set window size
         width = 800
@@ -205,9 +201,6 @@ if __name__ == "__main__":
         querywindow.show()
 
         # DARK THEME
-        # https://pypi.org/project/pyqtdarktheme/
-        # pip install pyqtdarktheme
-        # Apply the complete dark theme to Qt App.
         qdarktheme.setup_theme("auto")
 
         # start the event loop

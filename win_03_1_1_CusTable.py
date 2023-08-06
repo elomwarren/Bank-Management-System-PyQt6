@@ -42,11 +42,7 @@ class customers(QMainWindow):
         self.setWindowTitle(windowTitle)
 
         # set WINDOW ICON (icons from icons8.com)
-        self.setWindowIcon(
-            QIcon(
-                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/customer.png"
-            )
-        )
+        self.setWindowIcon(QIcon("./assets/bank.png"))
 
         # Set window size
         width = 800
@@ -82,13 +78,7 @@ class customers(QMainWindow):
         ### File Menu ###
 
         # 'Add' menu item
-        addAction = QAction(
-            QIcon(
-                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/add.png"
-            ),
-            "&New Record",
-            self,
-        )
+        addAction = QAction(QIcon("./assets/add.png"), "&New Record", self)
         addAction.setStatusTip("Add a new record")
         addAction.setShortcut("Ctrl+N")
         addAction.triggered.connect(self.newRecord)
@@ -96,9 +86,7 @@ class customers(QMainWindow):
 
         # 'Delete' menu item
         delAction = QAction(
-            QIcon(
-                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/remove.png"
-            ),
+            QIcon("./assets/remove.png"),
             "&Delete",
             self,
         )
@@ -109,9 +97,7 @@ class customers(QMainWindow):
 
         # 'Save' menu item
         saveAction = QAction(
-            QIcon(
-                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/save.png"
-            ),
+            QIcon("./assets/save.png"),
             "&Save Changes",
             self,
         )
@@ -124,9 +110,7 @@ class customers(QMainWindow):
 
         # 'Exit' menu item
         exitAction = QAction(
-            QIcon(
-                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/exit.png"
-            ),
+            QIcon("./assets/exit.png"),
             "&Exit",
             self,
         )
@@ -139,9 +123,7 @@ class customers(QMainWindow):
 
         # 'Undo' menu item
         undoAction = QAction(
-            QIcon(
-                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/rollback.png"
-            ),
+            QIcon("./assets/rollback.png"),
             "&Undo",
             self,
         )
@@ -155,9 +137,7 @@ class customers(QMainWindow):
 
         # 'Cut' menu item
         cutAction = QAction(
-            QIcon(
-                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/cut.png"
-            ),
+            QIcon("./assets/cut.png"),
             "&Cut",
             self,
         )
@@ -168,9 +148,7 @@ class customers(QMainWindow):
 
         # 'Copy' menu item
         copyAction = QAction(
-            QIcon(
-                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/copy.png"
-            ),
+            QIcon("./assets/copy.png"),
             "&Copy",
             self,
         )
@@ -181,9 +159,7 @@ class customers(QMainWindow):
 
         # 'Paste' menu item
         pasteAction = QAction(
-            QIcon(
-                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/paste.png"
-            ),
+            QIcon("./assets/paste.png"),
             "&Paste",
             self,
         )
@@ -196,9 +172,7 @@ class customers(QMainWindow):
 
         # 'Search' menu item
         searchAction = QAction(
-            QIcon(
-                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/search.png"
-            ),
+            QIcon("./assets/search.png"),
             "&Search",
             self,
         )
@@ -211,9 +185,7 @@ class customers(QMainWindow):
 
         # 'About' menu item
         aboutAction = QAction(
-            QIcon(
-                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/info.png"
-            ),
+            QIcon("./assets/info.png"),
             "&About",
             self,
         )
@@ -860,7 +832,7 @@ class customers(QMainWindow):
             return self.customerID
         # convert customerID to integer
         try:
-            self.customerID = int(self.customerID) 
+            self.customerID = int(self.customerID)
         except ValueError:
             QMessageBox.warning(
                 self,
@@ -1458,9 +1430,6 @@ if __name__ == "__main__":
         cuswindow.show()
 
         # DARK THEME
-        # https://pypi.org/project/pyqtdarktheme/
-        # pip install pyqtdarktheme
-        # Apply the complete dark theme to Qt App.
         qdarktheme.setup_theme("auto")
 
         # start the event loop

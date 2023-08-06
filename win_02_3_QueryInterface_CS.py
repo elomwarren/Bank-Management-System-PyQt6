@@ -15,7 +15,7 @@ class queryInterface(QMainWindow):
         self.setWindowTitle(windowTitle)
 
         # set WINDOW ICON
-        self.setWindowIcon(QIcon('D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/query.png'))
+        self.setWindowIcon(QIcon("./assets/query.png"))
 
         # Set window size 
         width = 800
@@ -51,16 +51,16 @@ class queryInterface(QMainWindow):
         queryField.setFixedHeight(100) 
 
         # Execute Query Button
-        executeQueryButton = QPushButton('Execute Query', clicked=lambda: executeQuery())  # type: ignore
+        executeQueryButton = QPushButton('Execute Query', clicked=lambda: self.executeQuery())  # type: ignore
 
         # QUERY RESULTS: QTableWidget
         queryResultsLabel = QTableWidget()
 
         # Export to Excel Button
-        exportToExcelButton = QPushButton('Export to Excel', clicked=lambda: exportToExcel())  # type: ignore
+        exportToExcelButton = QPushButton('Export to Excel', clicked=lambda: self.exportToExcel())  # type: ignore
 
         # BACK BUTTON
-        backButton = QPushButton('Back', clicked=lambda: back())  # type: ignore
+        backButton = QPushButton('Back', clicked=lambda: self.back())  # type: ignore
 
         # Previous Queries
         previousQueriesLabel = QLabel('Previous Queries')
@@ -121,7 +121,6 @@ class queryInterface(QMainWindow):
 
         # NEST vbox2 in hbox
         hbox.addLayout(vbox2, 1)
-  
 
         ### END ADD WIDGETS TO hbox ###
 
@@ -133,25 +132,25 @@ class queryInterface(QMainWindow):
 
         ########################## END OF LAYOUT ##########################
 
-        ##################### BUTTON FUNCTIONS #####################
+    ##################### BUTTON FUNCTIONS #####################
 
-        # Execute Query Button
-        def executeQuery():
-            print('Query executed')
+    # Execute Query Button
+    def executeQuery(self):
+        print('Query executed')
 
-        # Export to Excel Button
-        def exportToExcel():
-            print('Exported to Excel')
+    # Export to Excel Button
+    def exportToExcel(self):
+        print('Exported to Excel')
 
-        # BACK BUTTON
-        def back():
-            # print('Back')
-            from win_02_1_CusServDashboard import cusServDashboard
-            self.cusServDashboard = cusServDashboard()
-            self.hide()
-            self.cusServDashboard.show()
+    # BACK BUTTON
+    def back(self):
+        # print('Back')
+        from win_02_1_CusServDashboard import cusServDashboard
+        self.cusServDashboard = cusServDashboard()
+        self.hide()
+        self.cusServDashboard.show()
 
-        ##################### END OF BUTTON FUNCTIONS #####################
+    ##################### END OF BUTTON FUNCTIONS #####################
 
 
 
@@ -192,9 +191,6 @@ if __name__ == '__main__':
         querywindow.show()
 
         # DARK THEME
-        # https://pypi.org/project/pyqtdarktheme/
-        # pip install pyqtdarktheme
-        # Apply the complete dark theme to Qt App.
         qdarktheme.setup_theme("auto")
 
         # start the event loop

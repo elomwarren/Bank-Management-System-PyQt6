@@ -34,11 +34,7 @@ class cusServDashboard(QMainWindow):
         self.setWindowTitle(windowTitle)
 
         # set WINDOW ICON (icons from icons8.com)
-        self.setWindowIcon(
-            QIcon(
-                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/dashboard.png"
-            )
-        )
+        self.setWindowIcon(QIcon("./assets/bank.png"))
 
         # Set window size
         width = 800
@@ -66,59 +62,44 @@ class cusServDashboard(QMainWindow):
         ######################### ADD WIDGETS #########################
 
         # Dashboard label
-        dashboardLabel = QLabel("DASHBOARD")
-        dashboardLabel.setFont(QFont("Century", 28))
-        dashboardLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.dashboardLabel = QLabel("DASHBOARD")
+        self.dashboardLabel.setFont(QFont("Century", 28))
+        self.dashboardLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # Entities Label
-        entitiesLabel = QLabel("Entities")
-        entitiesLabel.setFont(QFont("Century", 16))
-        entitiesLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.entitiesLabel = QLabel("Entities")
+        self.entitiesLabel.setFont(QFont("Century", 16))
+        self.entitiesLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         ### Push buttons for entities ###
 
-        cusButton = QPushButton("Customers", clicked=lambda: open_customers())  # type: ignore
+        self.cusButton = QPushButton("Customers", clicked=lambda: self.open_customers())  # type: ignore
 
-        accButton = QPushButton("Accounts", clicked=lambda: open_accounts())  # type: ignore
+        self.accButton = QPushButton("Accounts", clicked=lambda: self.open_accounts())  # type: ignore
 
-        cardButton = QPushButton("Cards", clicked=lambda: open_cards())  # type: ignore
+        self.cardButton = QPushButton("Cards", clicked=lambda: self.open_cards())  # type: ignore
 
-        txnButton = QPushButton("Transactions", clicked=lambda: open_transactions())  # type: ignore
+        self.txnButton = QPushButton("Transactions", clicked=lambda: self.open_transactions())  # type: ignore
 
-        loanButton = QPushButton("Loans", clicked=lambda: open_loans())  # type: ignore
+        self.loanButton = QPushButton("Loans", clicked=lambda: self.open_loans())  # type: ignore
 
-        loanPayButton = QPushButton("Loans Payment", clicked=lambda: open_loansPayment())  # type: ignore
+        self.loanPayButton = QPushButton("Loans Payment", clicked=lambda: self.open_loansPayment())  # type: ignore
 
-        # ANOTHER PRACTICAL WAY TO CREATE BUTTONS using for loop
-        # titles = ['Customers', 'Accounts', 'Cards', 'Transactions', 'Loans', 'Loans Payment']
-        # buttons = [QPushButton(title) for title in titles]
-
-        # ### CONNECT BUTTONS TO FUNCTIONS ###
-        # buttons[0].clicked.connect(Customers)
-        # buttons[1].clicked.connect(Accounts)
-        # buttons[2].clicked.connect(Cards)
-        # buttons[3].clicked.connect(Transactions)
-        # buttons[4].clicked.connect(Loans)
-        # buttons[5].clicked.connect(LoansPayment)
 
         # TOOL LABEL
-        toolLabel = QLabel("Tools")
-        toolLabel.setFont(QFont("Century", 16))
-        toolLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.toolLabel = QLabel("Tools")
+        self.toolLabel.setFont(QFont("Century", 16))
+        self.toolLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # Push button for Data Query Wizard
-        dataQueryWizardButton = QPushButton("Data Query Wizard", clicked=lambda: dataQueryWizard())  # type: ignore
-        dataQueryWizardButton.setIcon(
-            QIcon(
-                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/query.png"
-            )
-        )
+        self.dataQueryWizardButton = QPushButton("Data Query Wizard", clicked=lambda: self.dataQueryWizard())  # type: ignore
+        self.dataQueryWizardButton.setIcon(QIcon("./assets/query.png"))
 
         # Logout Push button
-        logoutButton = QPushButton("Logout", clicked=lambda: logout())  # type: ignore
+        self.logoutButton = QPushButton("Logout", clicked=lambda: self.logout())  # type: ignore
 
         # quit button
-        quitButton = QPushButton("Quit", clicked=lambda: quit())  # type: ignore
+        self.quitButton = QPushButton("Quit", clicked=lambda: self.quit())  # type: ignore
 
         ####################### END OF ADD WIDGETS #######################
 
@@ -129,36 +110,36 @@ class cusServDashboard(QMainWindow):
         ### ADD WIDGETS TO LAYOUT ###
 
         # Dashboard label
-        layout.addWidget(dashboardLabel)
+        layout.addWidget(self.dashboardLabel)
 
         # set space after Dashboard label
         layout.addSpacing(15)
 
         # Entities Label
-        layout.addWidget(entitiesLabel)
+        layout.addWidget(self.entitiesLabel)
 
         # Push buttons for entities
-        layout.addWidget(cusButton)
-        layout.addWidget(accButton)
-        layout.addWidget(cardButton)
-        layout.addWidget(txnButton)
-        layout.addWidget(loanButton)
-        layout.addWidget(loanPayButton)
+        layout.addWidget(self.cusButton)
+        layout.addWidget(self.accButton)
+        layout.addWidget(self.cardButton)
+        layout.addWidget(self.txnButton)
+        layout.addWidget(self.loanButton)
+        layout.addWidget(self.loanPayButton)
 
         # Tool label
-        layout.addWidget(toolLabel)
+        layout.addWidget(self.toolLabel)
 
         # Push button for Data Query Wizard
-        layout.addWidget(dataQueryWizardButton)
+        layout.addWidget(self.dataQueryWizardButton)
 
         # set space after Data Query Wizard button
         layout.addSpacing(20)
 
         # Logout Push button
-        layout.addWidget(logoutButton)
+        layout.addWidget(self.logoutButton)
 
         # Quit Push button
-        layout.addWidget(quitButton)
+        layout.addWidget(self.quitButton)
 
         ### SET CONTENT MARGINS ###
         layout.setContentsMargins(250, 150, 250, 75)  # left, top, right, bottom
@@ -173,65 +154,65 @@ class cusServDashboard(QMainWindow):
         self.setCentralWidget(container)
         ####################################
 
-        ##################### BUTTON FUNCTIONS #####################
+    ##################### BUTTON FUNCTIONS #####################
 
-        def open_customers():
-            # print('Customers')
-            self.customers = customers()
-            self.hide()
-            self.customers.show()
+    def open_customers(self):
+        # print('Customers')
+        self.customers = customers()
+        self.hide()
+        self.customers.show()
 
-        def open_accounts():
-            # print('Accounts')
-            self.accounts = accounts()
-            self.hide()
-            self.accounts.show()
+    def open_accounts(self):
+        # print('Accounts')
+        self.accounts = accounts()
+        self.hide()
+        self.accounts.show()
 
-        def open_cards():
-            # print('Cards')
-            self.cards = cards()
-            self.hide()
-            self.cards.show()
+    def open_cards(self):
+        # print('Cards')
+        self.cards = cards()
+        self.hide()
+        self.cards.show()
 
-        def open_transactions():
-            # print('Transactions')
-            self.transactions = transactions()
-            self.hide()
-            self.transactions.show()
+    def open_transactions(self):
+        # print('Transactions')
+        self.transactions = transactions()
+        self.hide()
+        self.transactions.show()
 
-        def open_loans():
-            # print('Loans')
-            self.loans = loans()
-            self.hide()
-            self.loans.show()
+    def open_loans(self):
+        # print('Loans')
+        self.loans = loans()
+        self.hide()
+        self.loans.show()
 
-        def open_loansPayment():
-            # print('Loans Payment')
-            self.loansPayment = loansPayment()
-            self.hide()
-            self.loansPayment.show()
+    def open_loansPayment(self):
+        # print('Loans Payment')
+        self.loansPayment = loansPayment()
+        self.hide()
+        self.loansPayment.show()
 
-        # Push button for Data Query Wizard
-        def dataQueryWizard():
-            # print('Data Query Wizard')
-            self.queryInterface = queryInterface()
-            self.hide()
-            self.queryInterface.show()
+    # Push button for Data Query Wizard
+    def dataQueryWizard(self):
+        # print('Data Query Wizard')
+        self.queryInterface = queryInterface()
+        self.hide()
+        self.queryInterface.show()
 
-        # Logout Push button
-        def logout():
-            # print('Logout')
-            from win_01_WelcomeLogin import welcome
+    # Logout Push button
+    def logout(self):
+        # print('Logout')
+        from win_01_WelcomeLogin import welcome
 
-            self.welcome = welcome()
-            self.hide()
-            self.welcome.show()
+        self.welcome = welcome()
+        self.hide()
+        self.welcome.show()
 
-        # Quit button
-        def quit():
-            self.close()
+    # Quit button
+    def quit(self):
+        self.close()
 
-        ##################### END OF BUTTON FUNCTIONS #####################
+    ##################### END OF BUTTON FUNCTIONS #####################
 
     ##################### center function #####################
     def showEvent(self, event):
@@ -270,9 +251,6 @@ if __name__ == "__main__":
         cusdashwindow.show()
 
         # DARK THEME
-        # https://pypi.org/project/pyqtdarktheme/
-        # pip install pyqtdarktheme
-        # Apply the complete dark theme to Qt App.
         qdarktheme.setup_theme("auto")
 
         # start the event loop

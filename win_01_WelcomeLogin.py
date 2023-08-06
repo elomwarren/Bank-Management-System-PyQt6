@@ -31,11 +31,7 @@ class welcome(QMainWindow):
         self.setWindowTitle(windowTitle)
 
         # set WINDOW ICON (icons from icons8.com)
-        self.setWindowIcon(
-            QIcon(
-                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/bank.png"
-            )
-        )
+        self.setWindowIcon(QIcon("./assets/bank.png"))
 
         # Set window size
         width = 800
@@ -60,8 +56,8 @@ class welcome(QMainWindow):
     def initUI(self):
         ######################### CREATE WIDGETS #########################
 
-        welcomeLabel = QLabel("Welcome to VVBank")
-        welcomeLabel.setFont(QFont("Century", 28))
+        self.welcomeLabel = QLabel("Welcome to VVBank")
+        self.welcomeLabel.setFont(QFont("Century", 28))
 
         ######################### LOGO ##########################
         # logoPixmap = QPixmap('D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/Volta Vision Bank 800².png')
@@ -70,24 +66,24 @@ class welcome(QMainWindow):
         #########################################################
 
         # Username
-        usernameLabel = QLabel("Username")
-        usernameField = QLineEdit()
-        usernameField.setPlaceholderText("Username")
+        self.usernameLabel = QLabel("Username")
+        self.usernameField = QLineEdit()
+        self.usernameField.setPlaceholderText("Username")
 
         # Password
-        passwordLabel = QLabel("Password")
-        passwordField = QLineEdit()
-        passwordField.setPlaceholderText("Enter your password")
-        passwordField.setEchoMode(QLineEdit.EchoMode.Password)
+        self.passwordLabel = QLabel("Password")
+        self.passwordField = QLineEdit()
+        self.passwordField.setPlaceholderText("Enter your password")
+        self.passwordField.setEchoMode(QLineEdit.EchoMode.Password)
 
         ########################################################
 
         # Login as
-        loginasLabel = QLabel("Login as")
-        loginasLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.loginasLabel = QLabel("Login as")
+        self.loginasLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # cusServloginButton
-        cusServloginButton = QPushButton("Customer Service", clicked=lambda: cusServ())  # type: ignore
+        self.cusServloginButton = QPushButton("Customer Service", clicked=lambda: self.cusServ())  # type: ignore
 
         # 2nd method
         # create the button
@@ -96,11 +92,11 @@ class welcome(QMainWindow):
         # cusServloginButton.clicked.connect(cusServ)
 
         # HRloginButton
-        HRloginButton = QPushButton("Human Resources", clicked=lambda: hr())  # type: ignore
+        self.HRloginButton = QPushButton("Human Resources", clicked=lambda: self.hr())  # type: ignore
 
         # About & Get Help widgets
-        aboutButton = QPushButton("About", clicked=lambda: about())  # type: ignore
-        getHelpButton = QPushButton("Get Help", clicked=lambda: help())  # type: ignore
+        self.aboutButton = QPushButton("About", clicked=lambda: self.about())  # type: ignore
+        self.getHelpButton = QPushButton("Get Help", clicked=lambda: self.help())  # type: ignore
 
         ####################### END OF CREATE WIDGETS #######################
 
@@ -115,21 +111,21 @@ class welcome(QMainWindow):
 
         ### ADD WIDGETS TO LAYOUT ###
 
-        layout.addWidget(welcomeLabel)
+        layout.addWidget(self.welcomeLabel)
         # layout.addWidget(logoPixmaplabel)
         layout.addSpacing(20)
-        layout.addWidget(usernameLabel)
-        layout.addWidget(usernameField)
-        layout.addWidget(passwordLabel)
-        layout.addWidget(passwordField)
-        layout.addWidget(loginasLabel)
-        layout.addWidget(cusServloginButton)
-        layout.addWidget(HRloginButton)
+        layout.addWidget(self.usernameLabel)
+        layout.addWidget(self.usernameField)
+        layout.addWidget(self.passwordLabel)
+        layout.addWidget(self.passwordField)
+        layout.addWidget(self.loginasLabel)
+        layout.addWidget(self.cusServloginButton)
+        layout.addWidget(self.HRloginButton)
 
         # set layout
         nestedlayout = QVBoxLayout()
-        nestedlayout.addWidget(aboutButton)
-        nestedlayout.addWidget(getHelpButton)
+        nestedlayout.addWidget(self.aboutButton)
+        nestedlayout.addWidget(self.getHelpButton)
         nestedlayout.setAlignment(
             Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignBottom
         )  # align to the bottom right
@@ -163,7 +159,7 @@ class welcome(QMainWindow):
         ##################### BUTTON FUNCTIONS #####################
 
         # EAST LEGON employees
-        cusServ_dep_usn = [
+        self.cusServ_dep_usn = [
             "elom",
             "kwameowusu",
             "akosuaappiah",
@@ -181,159 +177,146 @@ class welcome(QMainWindow):
         ]
 
         # EAST LEGON employees
-        hr_dep_usn = [
+        self.hr_dep_usn = [
             "elom",
             "kwadwohanson",
             "joshuaayivor",
             "fatimakone",
         ]
 
-        # cusServloginButton
-        def cusServ():
-            # Grab text in the fields
-            username = usernameField.text()
-            password = passwordField.text()
-            dsn = "localhost:1521/VVBANKING"
-            import cx_Oracle
+    # cusServloginButton
+    def cusServ(self):
+        # Grab text in the fields
+        self.username = self.usernameField.text()
+        self.password = self.passwordField.text()
+        self.dsn = "localhost:1521/VVBANKING"
+        import cx_Oracle
 
-            connection = None
-            try:
-                connection = cx_Oracle.connect(
-                    user=username, password=password, dsn=dsn
-                )
-                if connection:
-                    if username in cusServ_dep_usn:
-                        self.cusServDashboard = cusServDashboard()
-                        self.hide()
-                        self.cusServDashboard.show()
-                        # print('Login successful')
-                        successloginmsgBox = QMessageBox.information(
-                            self, "Login", "Login successful"
-                        )
-                        # successloginmsgBox.setWindowTitle('Login')
-                        # successloginmsgBox.setWindowIcon(QIcon('D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/authentication.png'))
-                        # successloginmsgBox.setText('Login successful')
-                        # successloginmsgBox.exec()
-                    elif username in hr_dep_usn:
-                        # print('''
-                        #       You are not authorized to access this section.
-                        #       Please login as a Human Resources employee
-                        #       ''')
-                        wrongloginmsgBox = QMessageBox.warning(
-                            self,
-                            "Login Error",
-                            "You are not authorized to access this section. Please login as a Human Resources employee!",
-                        )
-                        # wrongloginmsgBox.setWindowTitle('Login Error')
-                        # wrongloginmsgBox.setWindowIcon(QIcon('D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/warning.png'))
-                        # wrongloginmsgBox.setText('''
-                        #                         You are not authorized to access this section.
-                        #                         Please login as a Human Resources employee
-                        #                         ''')
-                        # failloginmsgBox.exec()
-            except cx_Oracle.Error as err:
-                # print('Fail to connect to database', err)
-                dberrormsgBox = QMessageBox.critical(
-                    self,
-                    "Database Connection Error",
-                    str(err)
-                    + "\n"
-                    + "Failed to connect to database"
-                    + "\n"
-                    + "Please contact the database administrator",
-                )
-            # else:
-            #     cursor = connection.cursor()
-            #     # Alter session date format
-            #     cursor.execute(
-            #         """
-            #                 ALTER SESSION SET NLS_DATE_FORMAT = 'DD-MON-YYYY'
-            #                     """
-            #     )
+        # initialise connection
+        self.connection = None
 
-            finally:
-                if connection is not None:
-                    connection.close()
-
-        # HRloginButton
-        def hr():
-            # Grab text in the fields
-            username = usernameField.text()
-            password = passwordField.text()
-            dsn = "localhost:1521/VVBANKING"
-            import cx_Oracle
-
-            # initialise connection
-            connection = None
-            try:
-                connection = cx_Oracle.connect(
-                    user=username, password=password, dsn=dsn
-                )
-                if connection:
-                    if username in hr_dep_usn:
-                        self.hrDashboard = hrDashboard()
-                        self.hide()
-                        self.hrDashboard.show()
-                        successloginmsgBox = QMessageBox.information(
-                            self, "Login", "Login successful"
-                        )
-
-                    elif username in hr_dep_usn:
-                        wrongloginmsgBox = QMessageBox.warning(
-                            self,
-                            "Login Error",
-                            "You are not authorized to access this section. Please login as a Customer Service employee!",
-                        )
-                        # print('Welcome to the HR Dashboard')
-            except cx_Oracle.Error as err:
-                dberrormsgBox = QMessageBox.critical(
-                    self,
-                    "Database Connection Error",
-                    str(err)
-                    + "\n"
-                    + "Failed to connect to database"
-                    + "\n"
-                    + "Please contact the database administrator",
-                )
-            # else:
-            #     cursor = connection.cursor()
-            #     # Alter session date format
-            #     cursor.execute(
-            #         """
-            #                 ALTER SESSION SET NLS_DATE_FORMAT = 'DD-MON-YYYY'
-            #                     """
-            #     )
-            finally:
-                if connection is not None:
-                    connection.close()
-
-        # About button
-        def about():
-            aboutmsgBox = QMessageBox()
-            aboutmsgBox.setWindowTitle("About")
-            aboutmsgBox.setWindowIcon(
-                QIcon(
-                    "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/about.png"
-                )
+        try:
+            self.connection = cx_Oracle.connect(
+                user=self.username, password=self.password, dsn=self.dsn
             )
-            aboutmsgBox.setText("This is the About section")
-            aboutmsgBox.exec()
-            # print('About')
-
-        # Help button
-        def help():
-            helpmsgBox = QMessageBox()
-            helpmsgBox.setWindowTitle("About")
-            helpmsgBox.setText("This the Help section")
-            helpmsgBox.setWindowIcon(
-                QIcon(
-                    "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/help.png"
-                )
+            if self.connection:
+                if self.username in self.cusServ_dep_usn:
+                    self.cusServDashboard = cusServDashboard()
+                    self.hide()
+                    self.cusServDashboard.show()
+                    # print('Login successful')
+                    QMessageBox.information(self, "Login", "Login successful")
+                    # successloginmsgBox.setWindowTitle('Login')
+                    # successloginmsgBox.setWindowIcon(QIcon('D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/authentication.png'))
+                    # successloginmsgBox.setText('Login successful')
+                    # successloginmsgBox.exec()
+                elif self.username in self.hr_dep_usn:
+                    # print('''
+                    #       You are not authorized to access this section.
+                    #       Please login as a Human Resources employee
+                    #       ''')
+                    QMessageBox.warning(
+                        self,
+                        "Login Error",
+                        "You are not authorized to access this section. Please login as a Human Resources employee!",
+                    )
+                    # wrongloginmsgBox.setWindowTitle('Login Error')
+                    # wrongloginmsgBox.setWindowIcon(QIcon('D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/warning.png'))
+                    # wrongloginmsgBox.setText('''
+                    #                         You are not authorized to access this section.
+                    #                         Please login as a Human Resources employee
+                    #                         ''')
+                    # failloginmsgBox.exec()
+        except cx_Oracle.Error as err:
+            # print('Fail to connect to database', err)
+            QMessageBox.critical(
+                self,
+                "Database Connection Error",
+                str(err)
+                + "\n"
+                + "Failed to connect to database"
+                + "\n"
+                + "Please contact the database administrator",
             )
-            helpmsgBox.exec()
-            # print('Help')
+        # else:
+        #     cursor = connection.cursor()
+        #     # Alter session date format
+        #     cursor.execute(
+        #         """
+        #                 ALTER SESSION SET NLS_DATE_FORMAT = 'DD-MON-YYYY'
+        #                     """
+        #     )
 
-        ##################### END OF BUTTON FUNCTIONS #####################
+        finally:
+            if self.connection is not None:
+                self.connection.close()
+
+    # HRloginButton
+    def hr(self):
+        # Grab text in the fields
+        import cx_Oracle
+
+        # initialise connection (previously done in cusServ function)
+
+        try:
+            self.connection = cx_Oracle.connect(
+                user=self.username, password=self.password, dsn=self.dsn
+            )
+            if self.connection:
+                if self.username in self.hr_dep_usn:
+                    self.hrDashboard = hrDashboard()
+                    self.hide()
+                    self.hrDashboard.show()
+                    QMessageBox.information(self, "Login", "Login successful")
+
+                elif self.username in self.hr_dep_usn:
+                    QMessageBox.warning(
+                        self,
+                        "Login Error",
+                        "You are not authorized to access this section. Please login as a Customer Service employee!",
+                    )
+                    # print('Welcome to the HR Dashboard')
+        except cx_Oracle.Error as err:
+            QMessageBox.critical(
+                self,
+                "Database Connection Error",
+                str(err)
+                + "\n"
+                + "Failed to connect to database"
+                + "\n"
+                + "Please contact the database administrator",
+            )
+        # else:
+        #     cursor = connection.cursor()
+        #     # Alter session date format
+        #     cursor.execute(
+        #         """
+        #                 ALTER SESSION SET NLS_DATE_FORMAT = 'DD-MON-YYYY'
+        #                     """
+        #     )
+        finally:
+            if self.connection is not None:
+                self.connection.close()
+
+    # About button
+    def about(self):
+        aboutmsgBox = QMessageBox()
+        aboutmsgBox.setWindowTitle("About")
+        aboutmsgBox.setWindowIcon(QIcon("./assets/about.png"))
+        aboutmsgBox.setText("This is the About section")
+        aboutmsgBox.exec()
+        # print('About')
+
+    # Help button
+    def help(self):
+        helpmsgBox = QMessageBox()
+        helpmsgBox.setWindowTitle("About")
+        helpmsgBox.setText("This the Help section")
+        helpmsgBox.setWindowIcon(QIcon("./assets/help.png"))
+        helpmsgBox.exec()
+        # print('Help')
+
+    ##################### END OF BUTTON FUNCTIONS #####################
 
     ##################### CENTER WINDOW FUNCTION #####################
     def showEvent(self, event):
