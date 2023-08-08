@@ -1,4 +1,12 @@
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout
+from PyQt6.QtWidgets import (
+    QApplication,
+    QMainWindow,
+    QWidget,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QVBoxLayout,
+)
 from PyQt6.QtGui import QFont, QIcon
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QGuiApplication
@@ -23,13 +31,13 @@ class hrDashboard(QMainWindow):
         super().__init__(*args, **kwargs)
 
         # set the window title
-        windowTitle = 'HR Dashboard'
+        windowTitle = "HR Dashboard"
         self.setWindowTitle(windowTitle)
 
         # set WINDOW ICON (icons from icons8.com)
         self.setWindowIcon(QIcon("./assets/bank.png"))
 
-        # Set window size 
+        # Set window size
         width = 800
         height = 600
         self.resize(width, height)
@@ -52,16 +60,15 @@ class hrDashboard(QMainWindow):
 
     # user interface function
     def initUI(self):
-
         ######################### ADD WIDGETS #########################
 
         # Dashboard label
-        self.dashboardLabel = QLabel('DASHBOARD')
+        self.dashboardLabel = QLabel("DASHBOARD")
         self.dashboardLabel.setFont(QFont("Century", 28))
         self.dashboardLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # Entities Label
-        self.entitiesLabel = QLabel('Entities')
+        self.entitiesLabel = QLabel("Entities")
         self.entitiesLabel.setFont(QFont("Century", 16))
         self.entitiesLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
@@ -70,39 +77,37 @@ class hrDashboard(QMainWindow):
         # titles = ['Employees', 'Jobs', 'Departments', 'Branches', 'Locations', 'Regions']
         # buttons = [QPushButton(title) for title in titles]
 
-        self.employeesButton = QPushButton('Employees', clicked=lambda: self.open_employees())  # type: ignore
+        self.employeesButton = QPushButton("Employees", clicked=lambda: self.open_employees())  # type: ignore
 
-        self.jobsButton = QPushButton('Jobs', clicked=lambda: self.open_jobs())  # type: ignore
+        self.jobsButton = QPushButton("Jobs", clicked=lambda: self.open_jobs())  # type: ignore
 
-        self.departmentsButton = QPushButton('Departments', clicked=lambda: self.open_departments())  # type: ignore
+        self.departmentsButton = QPushButton("Departments", clicked=lambda: self.open_departments())  # type: ignore
 
-        self.branchesButton = QPushButton('Branches', clicked=lambda: self.open_branches())  # type: ignore
+        self.branchesButton = QPushButton("Branches", clicked=lambda: self.open_branches())  # type: ignore
 
-        self.locationsButton = QPushButton('Locations', clicked=lambda: self.open_locations())  # type: ignore
+        self.locationsButton = QPushButton("Locations", clicked=lambda: self.open_locations())  # type: ignore
 
-        self.regionsButton = QPushButton('Regions', clicked=lambda: self.open_regions())  # type: ignore
+        self.regionsButton = QPushButton("Regions", clicked=lambda: self.open_regions())  # type: ignore
 
-        
         # Tool label
-        self.toolLabel = QLabel('Tools')
+        self.toolLabel = QLabel("Tools")
         self.toolLabel.setFont(QFont("Century", 16))
         self.toolLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # PUSH BUTTON FOR DATA QUERY WIZARD
-        self.dataQueryWizardButton = QPushButton('Data Query Wizard', clicked=lambda: self.dataQueryWizard())  # type: ignore
+        self.dataQueryWizardButton = QPushButton("Data Query Wizard", clicked=lambda: self.dataQueryWizard())  # type: ignore
         self.dataQueryWizardButton.setIcon(QIcon("./assets/query.png"))
 
         # LOGOUT PUSH BUTTON
-        self.logoutButton = QPushButton('Logout', clicked=lambda: self.logout())  # type: ignore
-        
-        # quit button
-        self.quitButton = QPushButton('Quit', clicked = lambda: self.quit()) # type: ignore
-        ####################### END OF ADD WIDGETS #######################
+        self.logoutButton = QPushButton("Logout", clicked=lambda: self.logout())  # type: ignore
 
+        # quit button
+        self.quitButton = QPushButton("Quit", clicked=lambda: self.quit())  # type: ignore
+        ####################### END OF ADD WIDGETS #######################
 
         ############################ LAYOUT ############################
 
-        layout = QVBoxLayout() 
+        layout = QVBoxLayout()
 
         ### ADD WIDGETS TO LAYOUT ###
 
@@ -134,14 +139,14 @@ class hrDashboard(QMainWindow):
 
         # Logout Push button
         layout.addWidget(self.logoutButton)
-        
+
         # Quit Push button
         layout.addWidget(self.quitButton)
 
         ### SET CONTENT MARGINS ###
-        layout.setContentsMargins(250, 150, 250, 75) # left, top, right, bottom
+        layout.setContentsMargins(250, 150, 250, 75)  # left, top, right, bottom
 
-        # Set the layout        
+        # Set the layout
         # self.setLayout(layout)
         ########################################
 
@@ -150,7 +155,6 @@ class hrDashboard(QMainWindow):
         container.setLayout(layout)
         self.setCentralWidget(container)
         ####################################
-
 
     ##################### BUTTON FUNCTIONS #####################
 
@@ -174,7 +178,7 @@ class hrDashboard(QMainWindow):
 
     def open_branches(self):
         # print('Branches')
-        self.branches =  branches()
+        self.branches = branches()
         self.hide()
         self.branches.show()
 
@@ -201,6 +205,7 @@ class hrDashboard(QMainWindow):
     def logout(self):
         # print('Logout')
         from win_01_WelcomeLogin import welcome
+
         self.welcome = welcome()
         self.hide()
         self.welcome.show()
@@ -219,24 +224,24 @@ class hrDashboard(QMainWindow):
     def center(self):
         frame = self.frameGeometry()
         screen = QGuiApplication.primaryScreen()
-        center = screen.availableGeometry().center() # type: ignore
+        center = screen.availableGeometry().center()  # type: ignore
         frame.moveCenter(center)
-        x = min(frame.topLeft().x(), screen.availableGeometry().right() - frame.width()) # type: ignore
-        y = min(frame.topLeft().y(), screen.availableGeometry().bottom() - frame.height()) # type: ignore
+        x = min(frame.topLeft().x(), screen.availableGeometry().right() - frame.width())  # type: ignore
+        y = min(frame.topLeft().y(), screen.availableGeometry().bottom() - frame.height())  # type: ignore
         self.move(x, y)
 
     ############################# END OF CENTER FUNCTION #############################
 
 
-if __name__ == '__main__':
-
+if __name__ == "__main__":
     try:
         # Include in try/except block if you're also targeting Mac/Linux
-        from ctypes import windll # only exists on Windows
-        myappid = 'mycompany.myproduct.subproduct.version'
+        from ctypes import windll  # only exists on Windows
+
+        myappid = "mycompany.myproduct.subproduct.version"
         windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
     # except ImportError:
-        # pass
+    # pass
     finally:
         # create the QApplication object
         app = QApplication(sys.argv)

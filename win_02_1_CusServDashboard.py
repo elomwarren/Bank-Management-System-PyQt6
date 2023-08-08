@@ -85,7 +85,6 @@ class cusServDashboard(QMainWindow):
 
         self.loanPayButton = QPushButton("Loans Payment", clicked=lambda: self.open_loansPayment())  # type: ignore
 
-
         # TOOL LABEL
         self.toolLabel = QLabel("Tools")
         self.toolLabel.setFont(QFont("Century", 16))
