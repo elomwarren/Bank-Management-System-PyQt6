@@ -24,22 +24,25 @@ from PyQt6.QtGui import QGuiApplication, QIcon, QAction, QRegularExpressionValid
 
 # other modules
 import datetime
-import re  # for regular expressions
 import cx_Oracle
 import qdarktheme
 import sys
 
 
-class customers(QMainWindow):
-    def __init__(self, *args, **kwargs):
+class entityWindow(QMainWindow):
+    def __init__(self, entity: str, attributes: list, intAttributes: list):
         """
-        Initializes the customers window.
+        Initializes entity window.
         """
-        super().__init__(*args, **kwargs)
+        super().__init__()
+
+        # set entity name
+        self.entity = entity
+        self.filters = attributes
+        self.intColumns = intAttributes
 
         # set the window title
-        windowTitle = "Customers"
-        self.setWindowTitle(windowTitle)
+        self.setWindowTitle(f"WEL Bank - {self.entity}")
 
         # set WINDOW ICON (icons from icons8.com)
         self.setWindowIcon(QIcon("./assets/bank.png"))
@@ -53,18 +56,17 @@ class customers(QMainWindow):
         self.center()
 
         # initialize member of other windows
-        self.cusServDashboard = None
+        # self.cusServDashboard = None
 
         # create the UI
         self.initUI()
 
     def initUI(self):
         """
-        Initializes the user interface for the Customers window.
+        Initializes the user interface for the window.
         """
 
-        ##### MENU BAR #####
-
+        ########################### MENU BAR ###########################
         # Create menu bar
         menuBar = self.menuBar()  # Get the QMenuBar from the QMainWindow
 
@@ -105,7 +107,7 @@ class customers(QMainWindow):
         saveAction.setShortcut("Ctrl+S")
         saveAction.triggered.connect(self.saveChanges)
 
-        # add Sepaaratora after save
+        # add Separator after save
         self.fileMenu.addSeparator()  # type: ignore
 
         # 'Exit' menu item
@@ -193,13 +195,10 @@ class customers(QMainWindow):
         aboutAction.setShortcut("F1")
         aboutAction.triggered.connect(self.about)
         self.helpMenu.addAction(aboutAction)  # type: ignore
-
-        ##### END OF MENU BAR #####
+        ################# END OF MENU BAR #################
 
         ##### TOOLBAR #####
-
         # Create toolbar
-
         self.toolBar = QToolBar("Main ToolBar")
         self.addToolBar(self.toolBar)
         self.toolBar.setIconSize(QSize(25, 25))
@@ -223,8 +222,7 @@ class customers(QMainWindow):
         # exit item
         self.toolBar.addAction(exitAction)
         self.addAction(exitAction)
-
-        ##### ENF OF TOOLBAR ######
+        ########## ENF OF TOOLBAR ##########
 
         # Create status bar
         statusBar = self.statusBar()
@@ -232,368 +230,56 @@ class customers(QMainWindow):
         statusBar.showMessage("Ready", 5000)  # type: ignore
 
         ########################### WIDGETS CREATION ###########################
-
         ### VBOX WIDGETS ###
         # Customers label
-        self.tableLabel = QLabel("CUSTOMERS")
+        self.tableLabel = QLabel(f"{self.entity}", self)
 
         # Customers Table
         self.table = QTableWidget(self)
 
         # BACK BUTTON
         self.backButton = QPushButton("Back", clicked=lambda: self.back())  # type: ignore
-
         ### END OF VBOX WIDGETS ###
+        ####################### END OF WIDGETS CREATION ########################
 
-        ### CREATION NEW CUSTOMER FORM WIDGETS ###
+        ############################ LAYOUT ############################
+        self.hbox = QHBoxLayout()
+        self.vbox = QVBoxLayout()
+        self.NewForm = QFormLayout()
+        self.SearchForm = QFormLayout()
 
-        # Field list = Customer ID, National ID, First Name, Last Name, Gender, Date of Bith, Nationality, Email,
-        # Phone Number, Address, Branch ID, Employee ID
+        ###################### ADD WIDGETS TO vbox LAYOUT ######################
+        # Customers label
+        self.vbox.addWidget(self.tableLabel, alignment=Qt.AlignmentFlag.AlignLeft)
 
-        # regExp = Regular Expression | validator = val
+        # Customers Table
+        self.vbox.addWidget(self.table)
 
-        # Customer ID field
-        self.customerIDField = QLineEdit(self)
-        self.customerIDField.setPlaceholderText("1XXXXXXX or 5XXXXXXX")
-        self.customerIDPattern = "[1|5][0-9]{7}"
-        self.regExp1 = QRegularExpression(self.customerIDPattern)
-        self.val1 = QRegularExpressionValidator(self.regExp1)
-        self.customerIDField.setValidator(self.val1)
+        # query to display entity data
+        self.selectQuery = f"SELECT * FROM {self.entity}"
 
-        # National ID field
-        self.nationalIDField = QLineEdit(self)
-        self.nationalIDField.setPlaceholderText(
-            "XXX-XXXXXXXXX-X" + " (e.g. GHA-456789012-3)"
-        )
-        self.nationalIDPattern = "[A-Z]{3}-[0-9]{9}-[0-9]{1}"
-        self.regExp2 = QRegularExpression(self.nationalIDPattern)
-        self.val2 = QRegularExpressionValidator(self.regExp2)
-        self.nationalIDField.setValidator(self.val2)
+        # Call the function to display values in the table
+        self.displayTable(self.selectQuery)
 
-        # First Name field
-        self.firstNameField = QLineEdit(self)
-        self.namePattern = r"^[A-Z][a-z]*(([\- ][A-Z])[a-z]*)*$"
-        self.regExp3 = QRegularExpression(self.namePattern)
-        self.val3 = QRegularExpressionValidator(self.regExp3)
-        self.firstNameField.setValidator(self.val3)
+        # BACK BUTTON
+        self.vbox.addWidget(self.backButton, alignment=Qt.AlignmentFlag.AlignRight)
+        ###################### END OF ADD WIDGETS TO vbox LAYOUT ######################
 
-        # Last Name field
-        self.lastNameField = QLineEdit(self)
-        self.lastNameField.setValidator(self.val3)
+        #################################
+        # Nest vbox in hbox             #
+        self.hbox.addLayout(self.vbox)  #
+        #################################
 
-        # Gender
-        self.genderField = QComboBox(self)  # by default editable=False
-        self.genderField.addItem("")
-        self.genderField.addItem("Female")
-        self.genderField.addItem("Male")
+        # NEW RECORD DOCK
+        self.newRecordDock()
 
-        # Date of Birth Field
-        self.dateOfBirthField = QDateEdit(self)
-        self.dateOfBirthField.setDisplayFormat("yyyy-MM-dd")
-
-        # Nationality Field
-        self.nationalityField = QComboBox(self)
-        self.nationalities = [
-            "",
-            "Afghan",
-            "Albanian",
-            "Algerian",
-            "American",
-            "Andorran",
-            "Angolan",
-            "Antiguans",
-            "Argentine",
-            "Armenian",
-            "Australian",
-            "Austrian",
-            "Azerbaijani",
-            "Bahamian",
-            "Bahraini",
-            "Bangladeshi",
-            "Barbadian",
-            "Belarusian",
-            "Belgian",
-            "Belizean",
-            "Beninese",
-            "Bhutanese",
-            "Bolivian",
-            "Bosnian, Herzegovinian",
-            "Botswanan",
-            "Brazilian",
-            "British",
-            "Bruneian",
-            "Bulgarian",
-            "Burkinabe",
-            "Burmese",
-            "Burundian",
-            "Cambodian",
-            "Cameroonian",
-            "Canadian",
-            "Cape Verdean",
-            "Central African",
-            "Chadian",
-            "Chilean",
-            "Chinese",
-            "Colombian",
-            "Comoran",
-            "Congolese (Congo)",
-            "Congolese (DR Congo)",
-            "Costa Rican",
-            "Croatian",
-            "Cuban",
-            "Cypriot",
-            "Czech",
-            "Danish",
-            "Djibouti",
-            "Dominican (Dominica)",
-            "Dominican (Dominican Republic)",
-            "Dutch",
-            "East Timorese",
-            "Ecuadorian",
-            "Egyptian",
-            "Emirati",
-            "Equatorial Guinean",
-            "Eritrean",
-            "Estonian",
-            "Ethiopian",
-            "Fijian",
-            "Filipino",
-            "Finnish",
-            "French",
-            "Gabonese",
-            "Gambian",
-            "Georgian",
-            "German",
-            "Ghanaian",
-            "Greek",
-            "Grenadian",
-            "Guatemalan",
-            "Guinean",
-            "Guinea-Bissauan",
-            "Guyanese",
-            "Haitian",
-            "Honduran",
-            "Hungarian",
-            "Icelander",
-            "Indian",
-            "Indonesian",
-            "Iranian",
-            "Iraqi",
-            "Irish",
-            "Israeli",
-            "Italian",
-            "Ivorian",
-            "Jamaican",
-            "Japanese",
-            "Jordanian",
-            "Kazakhstani",
-            "Kenyan",
-            "Kittitian and Nevisian",
-            "Kuwaiti",
-            "Kyrgyz",
-            "Laotian",
-            "Latvian",
-            "Lebanese",
-            "Liberian",
-            "Libyan",
-            "Liechtensteiner",
-            "Lithuanian",
-            "Luxembourger",
-            "Macedonian",
-            "Malagasy",
-            "Malawian",
-            "Malaysian",
-            "Maldivian",
-            "Malian",
-            "Maltese",
-            "Marshallese",
-            "Mauritanian",
-            "Mauritian",
-            "Mexican",
-            "Micronesian",
-            "Moldovan",
-            "Monacan",
-            "Mongolian",
-            "Montenegrin",
-            "Moroccan",
-            "Mozambican",
-            "Namibian",
-            "Nauruan",
-            "Nepalese",
-            "New Zealander",
-            "Nicaraguan",
-            "Nigerian",
-            "Nigerien",
-            "North Korean",
-            "Norwegian",
-            "Omani",
-            "Pakistani",
-            "Palauan",
-            "Palestinian",
-            "Panamanian",
-            "Papua New Guinean",
-            "Paraguayan",
-            "Peruvian",
-            "Polish",
-            "Portuguese",
-            "Qatari",
-            "Romanian",
-            "Russian",
-            "Rwandan",
-            "Saint Lucian",
-            "Salvadoran",
-            "Sammarinese",
-            "Samoan",
-            "Sao Tomean",
-            "Saudi",
-            "Scottish",
-            "Senegalese",
-            "Serbian",
-            "Seychellois",
-            "Sierra Leonean",
-            "Singaporean",
-            "Slovakian",
-            "Slovenian",
-            "Solomon Islander",
-            "Somali",
-            "South African",
-            "South Korean",
-            "South Sudanese",
-            "Spanish",
-            "Sri Lankan",
-            "Sudanese",
-            "Surinamese",
-            "Swazi",
-            "Swedish",
-            "Swiss",
-            "Syrian",
-            "Taiwanese",
-            "Tajik",
-            "Tanzanian",
-            "Thai",
-            "Togolese",
-            "Tongan",
-            "Trinidadian or Tobagonian",
-            "Tunisian",
-            "Turkish",
-            "Tuvaluan",
-            "Ugandan",
-            "Ukrainian",
-            "Uruguayan",
-            "Uzbekistani",
-            "Vanuatuan",
-            "Venezuelan",
-            "Vietnamese",
-            "Vincentian",
-            "Welsh",
-            "Yemeni",
-            "Zambian",
-            "Zimbabwean",
-        ]
-
-        # add nationalities to the drop down menu
-        self.nationalityField.addItems(self.nationalities)
-
-        # Email Field
-        self.emailField = QLineEdit(self)
-        self.emailField.setPlaceholderText("example@example.com")
-
-        # Phone Number Field
-        self.phoneNumberField = QLineEdit(self)
-        self.phoneNumberField.setPlaceholderText("e.g. 24XXXXXXX")
-        self.phoneNumPattern = "[0-9]{9}"
-        self.regExp4 = QRegularExpression(self.phoneNumPattern)
-        self.val4 = QRegularExpressionValidator(self.regExp4)
-        self.phoneNumberField.setValidator(self.val4)
-
-        # Occupaton Field
-        self.occupationField = QLineEdit(self)
-        self.occupationField.setPlaceholderText("Occupation")
-
-        # Address Field
-        self.addressField = QComboBox(self, editable=True)  # type: ignore
-        self.addressField.setPlaceholderText("e.g. East Legon")
-        self.addresses = [
-            "",
-            "Accra",
-            "East Legon",
-            "Madina",
-            "Achimota",
-            "Botwe",
-            "Adenta",
-            "Spintex",
-            "Tema",
-            "Aflao",
-            "Lapaz",
-            "Osu",
-            "Dansoman",
-            "Kaneshie",
-            "Kasoa",
-            "Kumasi",
-            "Takoradi",
-            "Tamale",
-            "Ashaiman",
-            "Ho",
-            "Akatsi",
-            "Asikuma",
-            "Amedzofe",
-            "Donkorkrom",
-            "Hohoe",
-            "Akossombo",
-            "Kpeve",
-        ]
-        # add addresses to the drop down menu
-        self.addressField.addItems(self.addresses)
-
-        # Branch ID Field
-        self.branchIDField = QComboBox(self)
-        self.branchIDField.addItem("")
-        self.branchIDField.addItem("1")
-        self.branchIDField.addItem("5")
-
-        # Employee ID Field
-        self.employeeIDField = QComboBox(self)
-        self.employeeIDField.addItem("")
-        # East Legon Personal Bankers
-        self.employeeIDField.addItem("1102001")
-        self.employeeIDField.addItem("1102002")
-        self.employeeIDField.addItem("1102003")
-        # Ho Personal Bankers
-        self.employeeIDField.addItem("5102001")
-        self.employeeIDField.addItem("5102002")
-        self.employeeIDField.addItem("5102003")
-
-        # ADD BUTTON
-        self.addButton = QPushButton("Add", clicked=lambda: self.add())  # type: ignore
-
-        # CANCEL BUTTON
-        self.cancelButton = QPushButton("Cancel", clicked=lambda: self.cancel())  # type: ignore
-
-        ### END OF CREATION NEW CUSTOMER FORM WIDGETS ###
-
-        ### SEARCH FORM WIDGETS ###
-
+        ####################### SEARCH DOCK #######################
+        ################## SEARCH FORM WIDGETS ##################
         # Search Field
         self.searchField = QLineEdit(self)
         self.searchField.setPlaceholderText("Enter a search term")
-
         # Filter Field
         self.filterField = QComboBox(self)
-        self.filters = [
-            "CUS_ID",
-            "NAT_ID",
-            "CUS_FN",
-            "CUS_LN",
-            "GENDER",
-            "CUS_DOB",
-            "NATIONALITY",
-            "CUS_EMAIL",
-            "CUS_PHONE",
-            "OCCUPATION",
-            "CUS_ADDR",
-            "BRCH_ID",
-            "EMP_ID",
-        ]
         # add filters to the drop down menu
         self.filterField.addItem("Required")
         self.filterField.addItems(self.filters)
@@ -609,117 +295,56 @@ class customers(QMainWindow):
         self.orderField.addItem("Desc")
 
         # SEARCH BUTTON
-        self.intColumns = ["CUS_ID", "CUS_PHONE", "BRCH_ID", "EMP_ID"]
         self.searchButton = QPushButton("Search", clicked=lambda: self.search(self.intColumns))  # type: ignore
 
         # CLEAR BUTTON
         self.clearButton = QPushButton("Clear", clicked=lambda: self.clearFilters())  # type: ignore
+        ############################ END OF CREATION SEARCH FORM WIDGETS ############################
 
-        ### END OF SEARCH FORM WIDGETS ###
-
-        ####################### END OF WIDGETS CREATION ########################
-
-        ############################ LAYOUT ############################
-
-        self.hbox = QHBoxLayout()
-        self.vbox = QVBoxLayout()
-        self.NewForm = QFormLayout()
-        self.SearchForm = QFormLayout()
-
-        ### ADD WIDGETS TO vbox LAYOUT ###
-
-        # Customers label
-        self.vbox.addWidget(self.tableLabel, alignment=Qt.AlignmentFlag.AlignLeft)
-
-        # Customers Table
-        self.vbox.addWidget(self.table)
-
-        # Table display query
-        self.selectQuery = "SELECT * FROM CUSTOMERS"
-
-        # Call the function to display values in the table
-        self.displayTable(self.selectQuery)
-
-        # BACK BUTTON
-        self.vbox.addWidget(self.backButton, alignment=Qt.AlignmentFlag.AlignRight)
-
-        ### END OF ADD WIDGETS TO vbox LAYOUT ###
-
-        # Nest vbox in hbox
-        self.hbox.addLayout(self.vbox)
-
-        ### ADD WIDGETS TO NewForm LAYOUT ###
-
-        self.NewForm.addRow("Customer ID", self.customerIDField)
-        self.NewForm.addRow("National ID", self.nationalIDField)
-        self.NewForm.addRow("First Name", self.firstNameField)
-        self.NewForm.addRow("Last Name", self.lastNameField)
-        self.NewForm.addRow("Gender", self.genderField)
-        self.NewForm.addRow("Date of Birth", self.dateOfBirthField)
-        self.NewForm.addRow("Nationality", self.nationalityField)
-        self.NewForm.addRow("Email", self.emailField)
-        self.NewForm.addRow("Phone Number", self.phoneNumberField)
-        self.NewForm.addRow("Occupation", self.occupationField)
-        self.NewForm.addRow("Address", self.addressField)
-        self.NewForm.addRow("Branch ID", self.branchIDField)
-        self.NewForm.addRow("Personal Banker ID", self.employeeIDField)
-        self.NewForm.addRow(self.addButton)
-        self.NewForm.addRow(self.cancelButton)
-        ### END OF ADD WIDGETS TO NewForm LAYOUT ###
-
-        ### ADD WIDGETS TO SearchForm LAYOUT ###
+        ############# ADD WIDGETS TO SearchForm LAYOUT #############
         self.SearchForm.addRow(self.searchField)
         self.SearchForm.addRow("Filter by", self.filterField)
         self.SearchForm.addRow("Sort by", self.orderbyField)
         self.SearchForm.addRow("Order", self.orderField)
         self.SearchForm.addRow(self.searchButton)
         self.SearchForm.addRow(self.clearButton)
+        ########## END OF ADD WIDGETS TO SearchForm LAYOUT ##########
 
-        ### END OF ADD WIDGETS TO SearchForm LAYOUT ###
-
-        ### SEARCH DOCK ###
-
+        ########################### SEARCH DOCK CREATION ###########################
         # ADD DOCK WIDGET FOR SEARCH
         self.SearchDock = QDockWidget("Search", self)
-        # add "self." to make it an instance of the class and accessible from other methods
         # SearchDock.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.SearchDock)
-
-        # END DOCK WIDGET FOR SEARCH
-
         # ADD WIDGETS TO SEARCH DOCK
         self.SearchDockWidget = QWidget(self)
         self.SearchDockWidget.setLayout(self.SearchForm)
         self.SearchDock.setWidget(self.SearchDockWidget)
+        ####################### END OF SEARCH DOCK CREATION #######################
 
-        ### END OF SEARCH DOCK ###
-
-        ###  NEW CUSTOMER DOCK ###
-
+        ###########################  NEW RECORD DOCK CREATION ###########################
         # ADD DOCK WIDGET FOR NEW RECORD
-
         self.NewRecordDock = QDockWidget("New Record")
         # NewDock.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.NewRecordDock)
-
-        # END DOCK WIDGET FOR NEW CUSTOMER
-
         # ADD WIDGETS TO NEW CUSTOMER DOCK
         self.NewRecordDockWidget = QWidget(self)
         self.NewRecordDockWidget.setLayout(self.NewForm)
         self.NewRecordDock.setWidget(self.NewRecordDockWidget)
+        ####################### END OF NEW RECORD DOCK CREATION #######################
 
-        ### END OF NEW CUSTOMER DOCK ###
-
-        ### Center window content ###
+        ######## CENTER WINDOW CONTENT ##########
         self.container = QWidget()
         self.container.setLayout(self.hbox)
         self.setCentralWidget(self.container)
+        #########################################
 
         ########################## END OF LAYOUT ##########################
 
-    ##################### BUTTON FUNCTIONS #####################
+    ######################### UI FUNCTION: NEW RECORD DOCK #########################
+    def newRecordDock(self):
+        pass
 
+    ####################################### BUTTON FUNCTIONS #######################################
     # BACK BUTTON
     def back(self):
         """
@@ -732,254 +357,26 @@ class customers(QMainWindow):
             None
         """
         from win_02_1_CusServDashboard import cusServDashboard
+        from win_02_2_HRDashboard import hrDashboard
 
-        self.cusServDashboard = cusServDashboard()
-        self.hide()
-        self.cusServDashboard.show()
-
-    ### ADD RECORD FORM FUNCTIONS ###
-
-    # CANCEL BUTTON
-    def cancel(self):
-        """
-        Function to clear all fields in the Add Record form when the Cancel button is clicked.
-
-        Args:
-            None
-
-        Returns:
-            None
-        """
-        # Ask user for confirmation
-        msg = QMessageBox.question(
-            self,
-            "Confirmation",
-            "Do you really want to clear all fields?",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-        )
-        if msg == QMessageBox.StandardButton.Yes:
-            # clear fields
-            self.customerIDField.clear()
-            self.nationalIDField.clear()
-            self.firstNameField.clear()
-            self.lastNameField.clear()
-            self.genderField.setCurrentIndex(0)
-            self.dateOfBirthField.setDate(QDate.currentDate())
-            self.nationalityField.setCurrentIndex(0)
-            self.emailField.clear()
-            self.phoneNumberField.clear()
-            self.occupationField.clear()
-            self.addressField.setCurrentIndex(0)
-            self.branchIDField.setCurrentIndex(0)
-            self.employeeIDField.setCurrentIndex(0)
+        if self.entity in [
+            "Customers",
+            "Accounts",
+            "Cards",
+            "Transactions",
+            "Loans",
+            "Loans_Payment",
+        ]:
+            self.cusServDashboard = cusServDashboard()
+            self.hide()
+            self.cusServDashboard.show()
         else:
-            pass
+            self.hrDashboard = hrDashboard()
+            self.hide()
+            self.hrDashboard.show()
 
-    # ADD BUTTON
-
-    # Primary function: Add function (insert logic)
-
-    def add(self):
-        """
-        This method is called when the user clicks the "Add" button in the GUI. It retrieves the data entered by the user
-        in the various fields, validates the data, and inserts a new record into the " " table in the database.
-        """
-
-        self.insertQuery = """
-                insert into customers values (:1, :2, :3, :4, :5, :6, :7, :8, :9, :10, :11, :12, :13)
-                """
-
-        ### GRAB TEXT IN THE FIELDS AND ADD LOGIC ###
-        self.customerID = self.customerIDField.text()
-        self.nationalID = self.nationalIDField.text()
-        self.firstName = self.firstNameField.text()
-        self.lastName = self.lastNameField.text()
-        self.gender = self.genderField.currentText()
-        self.dateOfBirth = self.dateOfBirthField.text()
-        self.nationality = self.nationalityField.currentText()
-        self.email = self.emailField.text()
-        self.phoneNumber = self.phoneNumberField.text()
-        self.occupation = self.occupationField.text()
-        self.address = self.addressField.currentText()
-        self.branchID = self.branchIDField.currentText()
-        self.employeeID = self.employeeIDField.currentText()
-
-        self.columnsData = [
-            self.customerID,
-            self.nationalID,
-            self.firstName,
-            self.lastName,
-            self.gender,
-            self.dateOfBirth,
-            self.nationality,
-            self.email,
-            self.phoneNumber,
-            self.occupation,
-            self.address,
-            self.branchID,
-            self.employeeID,
-        ]
-
-        ### FIELDS VALIDATI0N LOGIC ###
-
-        ### Customer ID field ###
-        if self.customerID == "" or len(str(self.customerID)) != 8:
-            QMessageBox.warning(
-                self,
-                "Invalid Customer ID",
-                "Please enter a valid customer ID (8 digits)",
-            )
-            return self.customerID
-        # convert customerID to integer
-        try:
-            self.customerID = int(self.customerID)
-        except ValueError:
-            QMessageBox.warning(
-                self,
-                "Invalid Customer ID",
-                "Please enter a valid customer ID (8 digits)",
-            )
-            return self.customerID
-
-        ### National ID field ###
-        if self.nationalID == "" or len(self.nationalID) != 15:
-            QMessageBox.warning(
-                self,
-                "Invalid National ID",
-                "Please enter a valid national ID (15 digits)",
-            )
-            return self.nationalID
-
-        ### First Name field ###
-        if self.firstName == "" or self.firstName[-1] == "-":
-            QMessageBox.warning(
-                self, "Invalid First Name", "Please enter a valid first name"
-            )
-            return self.firstName
-
-        ### Last Name field ###
-        if self.lastName == "" or self.lastName[-1] == "-":
-            QMessageBox.warning(
-                self, "Invalid Last Name", "Please enter a valid last name"
-            )
-            return self.lastName
-
-        ### Gender field ###
-        if self.gender == "":
-            QMessageBox.warning(self, "Invalid Gender", "Please select a valid gender")
-            return self.gender
-
-        ### Date of Birth field ###
-        # Check if the customer is already 18
-        if self.age(self.dateOfBirth) < 18:
-            QMessageBox.warning(
-                self,
-                "Invalid Date of Birth",
-                "Customer must be at least 18 years old",
-            )
-            return self.dateOfBirth
-
-        ### Nationality field ###
-        if self.nationality == "":
-            QMessageBox.warning(
-                self, "Invalid Nationality", "Please enter a valid nationality"
-            )
-            return self.nationality
-
-        ### Email field ###
-        ### Email field ###
-        if self.email == "" or "@" not in self.email:
-            QMessageBox.warning(self, "Invalid Email", "Please enter a valid email")
-            return self.email
-
-        ### Phone Number field ###
-        if self.phoneNumber == "" or len(str(self.phoneNumber)) != 9:
-            QMessageBox.warning(
-                self, "Invalid Phone Number", "Please enter a valid phone number"
-            )
-            return self.phoneNumber
-
-        # Convert phoneNumber to integer
-        try:
-            self.phoneNumber = int(self.phoneNumber)
-        except ValueError:
-            QMessageBox.warning(
-                self, "Invalid Phone Number", "Please enter a valid phone number"
-            )
-            return self.phoneNumber
-
-        ### Occupation field ###
-        ### Occupation field ###
-        if self.occupation == "" or self.occupation.isnumeric():
-            QMessageBox.warning(
-                self, "Invalid Occupation", "Please enter a valid occupation"
-            )
-            return self.occupation
-
-        ### Address field ###
-        if self.address == "":
-            QMessageBox.warning(
-                self, "Invalid Address", "Please choose or enter a valid address"
-            )
-            return self.address
-
-        ### Branch ID field ###
-        if self.branchIDField.currentText() == "":
-            QMessageBox.warning(
-                self, "Invalid Branch ID", "Please choose a valid branch ID"
-            )
-            return self.branchIDField.currentText()
-        elif self.customerIDField.text()[0] != self.branchIDField.currentText()[0]:
-            QMessageBox.warning(
-                self,
-                "Invalid Branch ID",
-                "Branch ID must match the first digit of the customer ID",
-            )
-            return self.branchIDField.currentText()
-
-        # Convert branch ID to an integer
-        try:
-            branchID = int(self.branchIDField.currentText())
-        except ValueError:
-            QMessageBox.warning(
-                self,
-                "Invalid Branch ID",
-                "Branch ID must match the first digit of the customer ID",
-            )
-            return self.branchIDField.currentText()
-
-        ### Employee ID field ###
-        if self.employeeIDField.currentText() == "":
-            QMessageBox.warning(
-                self, "Invalid Employee ID", "Please choose a valid employee ID"
-            )
-            return self.employeeIDField.currentText()
-        elif self.customerIDField.text()[0] != self.employeeIDField.currentText()[0]:
-            QMessageBox.warning(
-                self,
-                "Invalid Employee ID",
-                "Employee ID must match the first digit of the customer ID",
-            )
-            return self.employeeIDField.currentText()
-
-        # convert employeeID to integer
-        try:
-            employeeID = int(self.employeeIDField.currentText())
-        except ValueError:
-            QMessageBox.warning(
-                self,
-                "Invalid Employee ID",
-                "Employee ID must match the first digit of the customer ID",
-            )
-            return self.employeeIDField.currentText()
-
-        self.dataInsert(self.insertQuery, self.columnsData)
-        # END OF ADD FUNCTION
-
-    # SEARCH DOCK FUNCTIONS
-
+    ############################### SEARCH DOCK FUNCTIONS ###############################
     # SEARCH BUTTON
-
     def search(self, intColumns):
         """
         Function to handle the search button click event.
@@ -1009,7 +406,7 @@ class customers(QMainWindow):
             return filter
 
         if filter in intColumns and term.isdigit():
-            filterStatement = f" WHERE {filter} = {int(term)}"
+            filterStatement = f" WHERE {filter} = {float(term)}"
         else:
             filterStatement = f" WHERE {filter} = '{term}'"
 
@@ -1048,12 +445,10 @@ class customers(QMainWindow):
         self.table.setRowCount(0)
         self.displayTable(self.selectQuery)
 
-    ##################### END OF BUTTON FUNCTIONS #####################
+    ####################################### END OF BUTTON FUNCTIONS #######################################
 
     ##################### SECONDARY FUNCTIONS #####################
-
     # FUNCTION to Execute SQL QUERY without values returned
-
     def sqlExecute(self, query):
         """
         Function to execute a SQL query on the database.
@@ -1100,7 +495,6 @@ class customers(QMainWindow):
                 connection.close()
 
     # FUNCTION to Execute SQL QUERY and display values in a table
-    # Display the results of a SQL query in a table
     def displayTable(self, query):
         """
         Given a SQL query, fetches the data from the database and displays it in a table.
@@ -1127,14 +521,12 @@ class customers(QMainWindow):
             try:
                 cursor = connection.cursor()
                 cursor.execute(query)
-
             except cx_Oracle.Error as err:
                 QMessageBox.critical(
                     self,
                     "Couldn't Fetch Data",
                     "\n" + str(err) + "\n" + "Please contact the administrator",
                 )
-
             else:
                 # Grab cursor result
                 result = cursor.fetchall()
@@ -1145,7 +537,6 @@ class customers(QMainWindow):
                 self.table.setHorizontalHeaderLabels(
                     [description[0] for description in cursor.description]
                 )
-
                 for row_idx, row in enumerate(result):
                     for col_idx, value in enumerate(row):
                         # Check if the value is a datetime
@@ -1154,17 +545,13 @@ class customers(QMainWindow):
                         else:
                             item = QTableWidgetItem(str(value))
                         self.table.setItem(row_idx, col_idx, item)
-
                 cursor.close()
-
         finally:
             if connection is not None:
                 connection.close()
 
     # Secondary functions for the ADD BUTTON
-
-    #  Insert function
-    # Function to insert data into the database
+    # Insert function
     def dataInsert(self, query, data):
         """
         Inserts data into the database using the provided query and data.
@@ -1191,7 +578,7 @@ class customers(QMainWindow):
                 cursor.execute(query, data)
             except cx_Oracle.Error as err:
                 QMessageBox.critical(
-                    self, "Database Error", str(err) + "\n" + "Insert Error"
+                    self, "Database Error", str(err) + "\n" + "Insertion Error"
                 )
             else:
                 connection.commit()
@@ -1203,7 +590,6 @@ class customers(QMainWindow):
             finally:
                 if cursor is not None:
                     cursor.close()
-
         except cx_Oracle.Error as err:
             QMessageBox.critical(
                 self,
@@ -1214,7 +600,6 @@ class customers(QMainWindow):
                 + "\n"
                 + "Please contact the database administrator",
             )
-
         finally:
             if connection is not None:
                 connection.close()
@@ -1232,13 +617,10 @@ class customers(QMainWindow):
         """
         # Convert string to date object
         birthDate = QDate.fromString(dateofbirth, "yyyy-MM-dd")
-
         # Get the current date
         currentDate = QDate.currentDate()
-
         # Calculate the age of the customer
         age = currentDate.year() - birthDate.year()
-
         # Check if the birth date has not yet occured within the current year
         if (currentDate.month(), currentDate.day()) < (
             birthDate.month(),
@@ -1250,8 +632,7 @@ class customers(QMainWindow):
 
     ##################### SECONDARY FUNCTIONS #####################
 
-    ##################### MENU BAR FUNCTIONS #####################
-
+    ############################# MENU BAR FUNCTIONS #############################
     # Open New Record Dock
     def newRecord(self):
         """
@@ -1280,7 +661,6 @@ class customers(QMainWindow):
             return QMessageBox.warning(
                 self, "No Record Selected", "Please select a record to delete"
             )
-
         # Ask user to confirm delete
         msg = QMessageBox.question(
             self,
@@ -1306,9 +686,11 @@ class customers(QMainWindow):
             header = header.text()
 
             # Delete the record from the database
-            delQuery = f"DELETE FROM CUSTOMERS WHERE {header} = {int(recordID)}"
+            self.delQuery = (
+                f"DELETE FROM {self.entity} WHERE {header} = {int(recordID)}"
+            )
             # print(delQuery)
-            self.sqlExecute(delQuery)
+            self.sqlExecute(self.delQuery)
             # Refresh the table
             self.table.setRowCount(0)
             self.displayTable(self.selectQuery)
@@ -1387,7 +769,7 @@ class customers(QMainWindow):
 
     ##################### END OF MENU BAR FUNCTIONS #####################
 
-    ##################### CENTER FUNCTION #####################
+    ############################# CENTER FUNCTION #############################
     def showEvent(self, event):
         """
         Overrides the default showEvent() function to center the main window on the screen when it is shown.
@@ -1408,6 +790,387 @@ class customers(QMainWindow):
         self.move(x, y)
 
     ############################# END OF CENTER FUNCTION #############################
+    # END OF entityWindow CLASS
+
+
+cusAttrib = [
+    "CUS_ID",
+    "NAT_ID",
+    "CUS_FN",
+    "CUS_LN",
+    "GENDER",
+    "CUS_DOB",
+    "NATIONALITY",
+    "CUS_EMAIL",
+    "CUS_PHONE",
+    "OCCUPATION",
+    "CUS_ADDR",
+    "BRCH_ID",
+    "EMP_ID",
+]
+intCusAttrib = ["CUS_ID", "CUS_PHONE", "BRCH_ID", "EMP_ID"]
+
+
+class customers(entityWindow):
+    def __init__(self):
+        super().__init__(
+            entity="Customers", attributes=cusAttrib, intAttributes=intCusAttrib
+        )
+
+    ###### ENTITY SPECIFIC FUNCTIONS ######
+    def newRecordDock(self):
+        ###################################### NEW RECORD DOCK ######################################
+
+        ################## CREATION NEW CUSTOMER FORM WIDGETS ##################
+        # regExp = Regular Expression | validator = val
+        # Customer ID field
+        self.customerIDField = QLineEdit(self)
+        self.customerIDField.setPlaceholderText("1 or 5 + (7 digits)")
+        self.customerIDField.setValidator(
+            QRegularExpressionValidator(QRegularExpression("[1|5][0-9]{7}"))
+        )
+        # National ID field
+        self.nationalIDField = QLineEdit(self)
+        self.nationalIDField.setPlaceholderText(
+            "XXX-XXXXXXXXX-X" + " (e.g. GHA-456789012-3)"
+        )
+        self.nationalIDField.setValidator(
+            QRegularExpressionValidator(
+                QRegularExpression("[A-Z]{3}-[0-9]{9}-[0-9]{1}")
+            )
+        )
+        # First Name field
+        self.firstNameField = QLineEdit(self)
+        self.firstNameField.setValidator(
+            QRegularExpressionValidator(
+                QRegularExpression(r"^[A-Z][a-z]*(([\- ][A-Z])[a-z]*)*$")
+            )
+        )
+        # Last Name field
+        self.lastNameField = QLineEdit(self)
+        self.lastNameField.setValidator(
+            QRegularExpressionValidator(
+                QRegularExpression(r"^[A-Z][a-z]*(([\- ][A-Z])[a-z]*)*$")
+            )
+        )
+        # Gender
+        self.genderField = QComboBox(self)  # by default editable=False
+        self.genderField.addItems(["", "Female", "Male"])
+        # Date of Birth Field
+        self.dateOfBirthField = QDateEdit(self)
+        self.dateOfBirthField.setDisplayFormat("yyyy-MM-dd")
+        # Nationality Field
+        self.nationalityField = QComboBox(self)
+        self.nationalities = [
+            "",
+            "American",
+            "Beninese",
+            "British",
+            "Burkinabe",
+            "Chinese",
+            "French",
+            "German",
+            "Ghanaian",
+            "Indian",
+            "Ivorian",
+            "Lebanese",
+            "Liberian",
+            "Malian",
+            "Nigerian",
+            "Nigerien",
+            "Senegalese",
+            "South African",
+            "Togolese",
+        ]
+        # add nationalities to the drop down menu
+        self.nationalityField.addItems(self.nationalities)
+        # Email Field
+        self.emailField = QLineEdit(self)
+        self.emailField.setPlaceholderText("example@example.com")
+        # Phone Number Field
+        self.phoneNumberField = QLineEdit(self)
+        self.phoneNumberField.setPlaceholderText("e.g. 24XXXXXXX (9 digits)")
+        self.phoneNumberField.setValidator(
+            QRegularExpressionValidator(QRegularExpression("[2|5][0-9]{8}"))
+        )
+        # Occupaton Field
+        self.occupationField = QLineEdit(self)
+        self.occupationField.setPlaceholderText("Occupation")
+        # Address Field
+        self.addressField = QComboBox(self, editable=True)  # type: ignore
+        self.addressField.setPlaceholderText("e.g. East Legon")
+        self.addresses = [
+            "",
+            "Accra",
+            "East Legon",
+            "Madina",
+            "Achimota",
+            "Botwe",
+            "Adenta",
+            "Spintex",
+            "Tema",
+            "Aflao",
+            "Lapaz",
+            "Osu",
+            "Dansoman",
+            "Kaneshie",
+            "Kasoa",
+            "Kumasi",
+            "Takoradi",
+            "Tamale",
+            "Ashaiman",
+            "Ho",
+            "Akatsi",
+            "Asikuma",
+            "Amedzofe",
+            "Donkorkrom",
+            "Hohoe",
+            "Akossombo",
+            "Kpeve",
+        ]
+        # add addresses to the drop down menu
+        self.addressField.addItems(self.addresses)
+        # Branch ID Field
+        self.branchIDField = QComboBox(self)
+        self.branchIDField.addItems(["", "1", "5"])
+        # Employee ID Field
+        self.employeeIDField = QComboBox(self)
+        self.employeeIDField.addItems(
+            ["", "1102001", "1102002", "1102003", "5102001", "5102002", "5102003"]
+        )
+
+        # ADD BUTTON
+        self.addButton = QPushButton("Add", clicked=lambda: self.add())  # type: ignore
+        # CANCEL BUTTON
+        self.cancelButton = QPushButton("Clear", clicked=lambda: self.cancel())  # type: ignore
+        ############### END OF CREATION 'NEW RECORD' FORM WIDGETS ###############
+
+        ############ ADD WIDGETS TO NewForm LAYOUT ############
+        self.NewForm.addRow("Customer ID", self.customerIDField)
+        self.NewForm.addRow("National ID", self.nationalIDField)
+        self.NewForm.addRow("First Name", self.firstNameField)
+        self.NewForm.addRow("Last Name", self.lastNameField)
+        self.NewForm.addRow("Gender", self.genderField)
+        self.NewForm.addRow("Date of Birth", self.dateOfBirthField)
+        self.NewForm.addRow("Nationality", self.nationalityField)
+        self.NewForm.addRow("Email", self.emailField)
+        self.NewForm.addRow("Phone Number", self.phoneNumberField)
+        self.NewForm.addRow("Occupation", self.occupationField)
+        self.NewForm.addRow("Address", self.addressField)
+        self.NewForm.addRow("Branch ID", self.branchIDField)
+        self.NewForm.addRow("Personal Banker ID", self.employeeIDField)
+        self.NewForm.addRow(self.addButton)
+        self.NewForm.addRow(self.cancelButton)
+        ########## END OF ADD WIDGETS TO NewForm LAYOUT ##########
+        ###################### END OF NEW RECORD DOCK ######################
+
+    ############################### 'ADD NEW RECORD' FORM FUNCTIONS ###############################
+    # CANCEL BUTTON
+    def cancel(self):
+        """
+        Function to clear all fields in the Add Record form when the Cancel button is clicked.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
+        # Ask user for confirmation
+        msg = QMessageBox.question(
+            self,
+            "Confirmation",
+            "Do you really want to clear all fields?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+        )
+        if msg == QMessageBox.StandardButton.Yes:
+            # clear fields
+            self.customerIDField.clear()
+            self.nationalIDField.clear()
+            self.firstNameField.clear()
+            self.lastNameField.clear()
+            self.genderField.setCurrentIndex(0)
+            self.dateOfBirthField.setDate(QDate.currentDate())
+            self.nationalityField.setCurrentIndex(0)
+            self.emailField.clear()
+            self.phoneNumberField.clear()
+            self.occupationField.clear()
+            self.addressField.setCurrentIndex(0)
+            self.branchIDField.setCurrentIndex(0)
+            self.employeeIDField.setCurrentIndex(0)
+        else:
+            pass
+
+    # ADD BUTTON
+    # Primary function: Add function (insert logic)
+    def add(self):
+        """
+        This method is called when the user clicks the "Add" button in the GUI. It retrieves the data entered by the user
+        in the various fields, validates the data, and inserts a new record into the " " table in the database.
+        """
+
+        self.insertQuery = f"""
+                insert into {self.entity} values (:1, :2, :3, :4, :5, :6, :7, :8, :9, :10, :11, :12, :13)
+                """
+
+        ### GRAB TEXT IN THE FIELDS AND ADD LOGIC ###
+        self.customerID = self.customerIDField.text()
+        self.nationalID = self.nationalIDField.text()
+        self.firstName = self.firstNameField.text()
+        self.lastName = self.lastNameField.text()
+        self.gender = self.genderField.currentText()
+        self.dateOfBirth = self.dateOfBirthField.text()
+        self.nationality = self.nationalityField.currentText()
+        self.email = self.emailField.text()
+        self.phoneNumber = self.phoneNumberField.text()
+        self.occupation = self.occupationField.text()
+        self.address = self.addressField.currentText()
+        self.branchID = self.branchIDField.currentText()
+        self.employeeID = self.employeeIDField.currentText()
+
+        self.columnsData = [
+            self.customerID,
+            self.nationalID,
+            self.firstName,
+            self.lastName,
+            self.gender,
+            self.dateOfBirth,
+            self.nationality,
+            self.email,
+            self.phoneNumber,
+            self.occupation,
+            self.address,
+            self.branchID,
+            self.employeeID,
+        ]
+        ################# FIELDS VALIDATI0N LOGIC #################
+        ### Customer ID field ###
+        if self.customerID == "" or len(str(self.customerID)) != 8:
+            QMessageBox.warning(
+                self,
+                "Invalid Customer ID",
+                "Please enter a valid customer ID (8 digits)",
+            )
+            return self.customerID
+        else:
+            # convert customerID to integer
+            self.customerID = int(self.customerID)
+
+        ### National ID field ###
+        if self.nationalID == "" or len(self.nationalID) != 15:
+            QMessageBox.warning(
+                self,
+                "Invalid National ID",
+                "Please enter a valid national ID (15 digits)",
+            )
+            return self.nationalID
+
+        ### First Name field ###
+        if self.firstName == "" or self.firstName[-1] == "-":
+            QMessageBox.warning(
+                self, "Invalid First Name", "Please enter a valid first name"
+            )
+            return self.firstName
+
+        ### Last Name field ###
+        if self.lastName == "" or self.lastName[-1] == "-":
+            QMessageBox.warning(
+                self, "Invalid Last Name", "Please enter a valid last name"
+            )
+            return self.lastName
+
+        ### Gender field ###
+        if self.gender == "":
+            QMessageBox.warning(self, "Invalid Gender", "Please select a valid gender")
+            return self.gender
+
+        ### Date of Birth field ###
+        # Check if the customer is already 18
+        if self.age(self.dateOfBirth) < 18:
+            QMessageBox.warning(
+                self,
+                "Invalid Date of Birth",
+                "Customer must be at least 18 years old",
+            )
+            return self.dateOfBirth
+
+        ### Nationality field ###
+        if self.nationality == "":
+            QMessageBox.warning(
+                self, "Invalid Nationality", "Please enter a valid nationality"
+            )
+            return self.nationality
+
+        ### Email field ###
+        if (
+            self.email == ""
+            or "@" not in self.email
+            or "." not in self.email.split("@")[1]
+        ):
+            QMessageBox.warning(self, "Invalid Email", "Please enter a valid email")
+            return self.email
+
+        ### Phone Number field ###
+        if self.phoneNumber == "" or len(str(self.phoneNumber)) != 9:
+            QMessageBox.warning(
+                self, "Invalid Phone Number", "Please enter a valid phone number"
+            )
+            return self.phoneNumber
+        else:
+            self.phoneNumber = int(self.phoneNumber)
+
+        ### Occupation field ###
+        if self.occupation == "" or self.occupation.isnumeric():
+            QMessageBox.warning(
+                self, "Invalid Occupation", "Please enter a valid occupation"
+            )
+            return self.occupation
+
+        ### Address field ###
+        if self.address == "":
+            QMessageBox.warning(
+                self, "Invalid Address", "Please choose or enter a valid address"
+            )
+            return self.address
+
+        ### Branch ID field ###
+        if self.branchIDField.currentText() == "":
+            QMessageBox.warning(
+                self, "Invalid Branch ID", "Please choose a valid branch ID"
+            )
+            return self.branchIDField.currentText()
+        elif self.customerIDField.text()[0] != self.branchIDField.currentText()[0]:
+            QMessageBox.warning(
+                self,
+                "Invalid Branch ID",
+                "Branch ID must match the first digit of the customer ID",
+            )
+            return self.branchIDField.currentText()
+        else:
+            self.branchID = int(self.branchIDField.currentText())
+
+        ### Employee ID field ###
+        if self.employeeIDField.currentText() == "":
+            QMessageBox.warning(
+                self, "Invalid Employee ID", "Please choose a valid employee ID"
+            )
+            return self.employeeIDField.currentText()
+        elif self.customerIDField.text()[0] != self.employeeIDField.currentText()[0]:
+            QMessageBox.warning(
+                self,
+                "Invalid Employee ID",
+                "Employee ID must match the first digit of the customer ID",
+            )
+            return self.employeeIDField.currentText()
+        else:
+            self.employeeID = int(self.employeeIDField.currentText())
+
+        # execute the insert query and ask to clear fields
+        self.dataInsert(self.insertQuery, self.columnsData)
+        self.cancel()
+        # END OF ADD FUNCTION
+
+    ############################### END OF ADD NEW RECORD FORM FUNCTIONS ###############################
 
 
 if __name__ == "__main__":
@@ -1417,20 +1180,11 @@ if __name__ == "__main__":
 
         myappid = "mycompany.myproduct.subproduct.version"
         windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
-    # except ImportError:
-    # pass
+    except ImportError:
+        pass
     finally:
-        # create the QApplication object
         app = QApplication(sys.argv)
-
-        # create the main window
         cuswindow = customers()
-
-        # show the window
         cuswindow.show()
-
-        # DARK THEME
         qdarktheme.setup_theme("auto")
-
-        # start the event loop
         sys.exit(app.exec())

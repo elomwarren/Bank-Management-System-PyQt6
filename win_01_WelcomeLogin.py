@@ -27,11 +27,11 @@ class welcome(QMainWindow):
         super().__init__(*args, **kwargs)
 
         # set the window title
-        windowTitle = "VVBank"
+        windowTitle = "WEL Bank"
         self.setWindowTitle(windowTitle)
 
         # set WINDOW ICON (icons from icons8.com)
-        self.setWindowIcon(QIcon("./assets/bank.png"))
+        self.setWindowIcon(QIcon("./assets/bank.png")) 
 
         # Set window size
         width = 800
@@ -55,9 +55,12 @@ class welcome(QMainWindow):
         Initializes the customers window.
         """
         ######################### CREATE WIDGETS #########################
-
-        self.welcomeLabel = QLabel("Welcome to VVBank")
-        self.welcomeLabel.setFont(QFont("Century", 28))
+        # self.welcomeLabel = QLabel("Welcome to WEL Bank")
+        # self.welcomeLabel.setFont(QFont("Century", 28))
+        self.logo = QPixmap("./assets/WEL_Bank-logos_transparent_300x300.png") 
+        self.logolabel = QLabel()
+        self.logolabel.setPixmap(self.logo)
+        self.logolabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # Consider adding a logo
 
@@ -110,17 +113,18 @@ class welcome(QMainWindow):
         # About & Get Help widgets
         self.aboutButton = QPushButton("About", clicked=lambda: self.about())  # type: ignore
         self.getHelpButton = QPushButton("Get Help", clicked=lambda: self.help())  # type: ignore
-
-        ####################### END OF WIDGETS CREATION #######################
+        ######################################################### END OF WIDGETS CREATION #########################################################
 
         ############################ LAYOUT ############################
-
         layout = QVBoxLayout()
 
-        ### ADD WIDGETS TO LAYOUT ###
+        # Add a spacer
+        # layout.addStretch()
 
-        layout.addWidget(self.welcomeLabel)
-        layout.addSpacing(20)
+        ### ADD WIDGETS TO LAYOUT ###
+        # layout.addWidget(self.welcomeLabel)
+        layout.addWidget(self.logolabel)
+        layout.addSpacing(10)
         layout.addWidget(self.usernameLabel)
         layout.addWidget(self.usernameField)
         layout.addWidget(self.passwordLabel)
@@ -128,6 +132,7 @@ class welcome(QMainWindow):
         layout.addWidget(self.loginasLabel)
         layout.addWidget(self.cusServloginButton)
         layout.addWidget(self.HRloginButton)
+        layout.addSpacing(10)
 
         # set layout
         nestedlayout = QVBoxLayout()
@@ -143,7 +148,7 @@ class welcome(QMainWindow):
         layout.addLayout(nestedlayout)
 
         ### SET CONTENT MARGINS ###
-        layout.setContentsMargins(200, 200, 200, 100)  # left, top, right, bottom
+        layout.setContentsMargins(200, 30, 200, 50)  # left, top, right, bottom
 
         ### Center window content ###
         container = QWidget()
@@ -157,7 +162,6 @@ class welcome(QMainWindow):
         ########################################
 
     ##################### BUTTON FUNCTIONS #####################
-
     # LOGIN BUTTON FUNCTION
     def login(self, dashboard: str, dep_usn: list):
         # Grab text in the fields
@@ -175,7 +179,6 @@ class welcome(QMainWindow):
 
         # initialise connection
         self.connection = None
-
         try:
             self.connection = cx_Oracle.connect(
                 user=self.username, password=self.password, dsn=self.dsn
@@ -248,7 +251,7 @@ if __name__ == "__main__":
         # create the QApplication object
         app = QApplication(sys.argv)
 
-        # create the main window
+        # create the main window (an instance of of the welcome class)
         welcomewindow = welcome()
 
         # show the window

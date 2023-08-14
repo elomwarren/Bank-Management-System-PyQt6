@@ -1,536 +1,429 @@
 from PyQt6.QtWidgets import (
     QApplication,
-    QMainWindow,
-    QWidget,
-    QLabel,
-    QToolBar,
     QLineEdit,
     QPushButton,
-    QVBoxLayout,
-    QHBoxLayout,
-    QFormLayout,
-    QDockWidget,
-    QTableWidget,
-    QTableWidgetItem,
     QMessageBox,
+    QComboBox,
+    QDateEdit,
 )
-from PyQt6.QtGui import QFont
-from PyQt6.QtCore import Qt, QSize
-from PyQt6.QtGui import QGuiApplication, QIcon, QAction
+from PyQt6.QtCore import QRegularExpression, QDate
+from PyQt6.QtGui import QRegularExpressionValidator
 
-import cx_Oracle
+# import necessary modules from other windows
+from win_03_1_1_CusTable import entityWindow
+
+# other modules
 import qdarktheme
 import sys
 
+empAttrib = [
+    "EMP_ID",
+    "EMP_FN",
+    "EMP_LN",
+    "GENDER",
+    "NATIONALITY",
+    "EMP_ADDR",
+    "EMP_EMAIL",
+    "EMP_PHONE",
+    "EMP_SALARY",
+    "HIRE_DATE",
+    "JOB_ID",
+    "DEP_ID",
+    "BRCH_ID",
+]
+intEmpAttrib = [
+    "EMP_ID",
+    "EMP_SALARY",
+    "EMP_PHONE",
+    "EMP_SALARY",
+    "JOB_ID",
+    "DEP_ID",
+    "BRCH_ID",
+]
 
-class employees(QMainWindow):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
 
-        # set the window title
-        windowTitle = "Employees"
-        self.setWindowTitle(windowTitle)
+class employees(entityWindow):
+    def __init__(self):
+        super().__init__("Employees", empAttrib, intEmpAttrib)
 
-        # set WINDOW ICON (icons from icons8.com)
-        self.setWindowIcon(QIcon("./assets/bank.png"))
-
-        # Set window size
-        width = 800
-        height = 600
-        self.resize(width, height)
-
-        # center the window, center function defined below
-        self.center()
-
-        # initialize member of other windows
-        self.hrDashboard = None
-
-        # create the UI
-        self.initUI()
-
-    def initUI(self):
-        ##### MENU BAR #####
-
-        # Create menu bar
-        menuBar = self.menuBar()  # Get the QMenuBar from the QMainWindow
-
-        # Create QMenus
-        # # Add the QMenu to the QMenuBar
-        fileMenu = menuBar.addMenu("&File")  # type: ignore
-        editMenu = menuBar.addMenu("&Edit")  # type: ignore
-        viewMenu = menuBar.addMenu("&View")  # type: ignore
-        helpMenu = menuBar.addMenu("&Help")  # type: ignore
-
-        ### File Menu ###
-
-        # 'Add' menu item
-        addAction = QAction(
-            QIcon(
-                "./assets/add.png"
-            ),
-            "&Add",
-            self,
-        )
-        addAction.setStatusTip("Add a new customer")
-        addAction.setShortcut("Ctrl+N")
-        addAction.triggered.connect(self.newRecord)
-        fileMenu.addAction(addAction)  # type: ignore
-
-        # 'Delete' menu item
-        delAction = QAction(
-            QIcon(
-                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/remove.png"
-            ),
-            "&Delete",
-            self,
-        )
-        delAction.setStatusTip("Delete a customer")
-        delAction.setShortcut("Del")
-        delAction.triggered.connect(self.delRecord)
-        fileMenu.addAction(delAction)  # type: ignore
-
-        # 'Save' menu item
-        saveAction = QAction(
-            QIcon(
-                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/save.png"
-            ),
-            "&Save Changes",
-            self,
-        )
-        saveAction.setStatusTip("Save (Commit) changes to the database")
-        saveAction.setShortcut("Ctrl+S")
-        saveAction.triggered.connect(self.saveChanges)
-
-        # add Sepaaratora after save
-        fileMenu.addSeparator()  # type: ignore
-
-        # 'Exit' menu item
-        exitAction = QAction(
-            QIcon(
-                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/exit.png"
-            ),
-            "&Exit",
-            self,
-        )
-        exitAction.setStatusTip("Exit")
-        exitAction.setShortcut("Alt+F4")
-        exitAction.triggered.connect(self.close)
-        fileMenu.addAction(exitAction)  # type: ignore
-
-        ### Edit Menu ###
-
-        # 'Undo' menu item
-        undoAction = QAction(
-            QIcon(
-                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/undo.png"
-            ),
-            "&Undo",
-            self,
-        )
-        undoAction.setStatusTip("Undo")
-        undoAction.setShortcut("Ctrl+Z")
-        undoAction.triggered.connect(self.undoChanges)
-        editMenu.addAction(undoAction)  # type: ignore
-
-        # 'Redo' menu item
-        redoAction = QAction(
-            QIcon(
-                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/redo.png"
-            ),
-            "&Redo",
-            self,
-        )
-        redoAction.setStatusTip("Redo")
-        redoAction.setShortcut("Ctrl+Y")
-        redoAction.triggered.connect(self.redoChanges)
-        editMenu.addAction(redoAction)  # type: ignore
-
-        # add Separator
-        editMenu.addSeparator()  # type: ignore
-
-        # 'Cut' menu item
-        cutAction = QAction(
-            QIcon(
-                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/cut.png"
-            ),
-            "&Cut",
-            self,
-        )
-        cutAction.setStatusTip("Cut")
-        cutAction.setShortcut("Ctrl+X")
-        cutAction.triggered.connect(self.cut)
-        editMenu.addAction(cutAction)  # type: ignore
-
-        # 'Copy' menu item
-        copyAction = QAction(
-            QIcon(
-                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/copy.png"
-            ),
-            "&Copy",
-            self,
-        )
-        copyAction.setStatusTip("Copy")
-        copyAction.setShortcut("Ctrl+C")
-        copyAction.triggered.connect(self.copy)
-        editMenu.addAction(copyAction)  # type: ignore
-
-        # 'Paste' menu item
-        pasteAction = QAction(
-            QIcon(
-                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/paste.png"
-            ),
-            "&Paste",
-            self,
-        )
-        pasteAction.setStatusTip("Paste")
-        pasteAction.setShortcut("Ctrl+V")
-        pasteAction.triggered.connect(self.paste)
-        editMenu.addAction(pasteAction)  # type: ignore
-
-        ### View menu ###
-
-        # 'Search' menu item
-        searchAction = QAction(
-            QIcon(
-                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/search.png"
-            ),
-            "&Search",
-            self,
-        )
-        searchAction.setStatusTip("Search")
-        searchAction.setShortcut("Ctrl+F")
-        searchAction.triggered.connect(self.searchdock)
-        viewMenu.addAction(searchAction)  # type: ignore
-
-        ### Help menu ###
-
-        # 'About' menu item
-        aboutAction = QAction(
-            QIcon(
-                "D:/01_IPMC/01_SEMESTER1/08_PROJECT_WORK/02_PROJECT/01_PROJECT_PAPER/GUI/VVBank_GUIProject_PyQt6/assets/info.png"
-            ),
-            "&About",
-            self,
-        )
-        aboutAction.setStatusTip("Help")
-        aboutAction.setShortcut("F1")
-        aboutAction.triggered.connect(self.about)
-        helpMenu.addAction(aboutAction)  # type: ignore
-
-        ##### END OF MENU BAR #####
-
-        ##### TOOLBAR #####
-
-        # Create toolbar
-
-        toolBar = QToolBar("Main ToolBar")
-        self.addToolBar(toolBar)
-        toolBar.setIconSize(QSize(25, 25))
-
-        # toolbar items
-        # From File menu
-        toolBar.addAction(addAction)
-        toolBar.addAction(delAction)
-        toolBar.addAction(saveAction)
-        toolBar.addSeparator()
-
-        # From Edit menu
-        toolBar.addAction(undoAction)
-        toolBar.addAction(redoAction)
-        toolBar.addSeparator()
-
-        # From View menu
-        toolBar.addAction(searchAction)
-        toolBar.addSeparator()
-
-        # exit item
-        toolBar.addAction(exitAction)
-
-        ##### ENF OF TOOLBAR ######
-
-        # Create status bar
-        statusBar = self.statusBar()
-        # display the a message in 5 seconds
-        statusBar.showMessage("Ready", 5000)  # type: ignore
-
-        ########################### ADD WIDGETS ###########################
-
-        ### VBOX WIDGETS ###
-        # Employees label
-        tableLabel = QLabel("EMPLOYEES")
-
-        # Employees Table
-        table = QTableWidget()
-
-        # BACK BUTTON
-        backButton = QPushButton("Back", clicked=lambda: back())  # type: ignore
-
-        ### END OF VBOX WIDGETS ###
+    ###### ENTITY SPECIFIC FUNCTIONS ######
+    def newRecordDock(self):
+        ###################################### NEW RECORD DOCK ######################################
 
         ### CREATION NEW RECORD FORM WIDGETS ###
 
         # Employee ID field
-        empIDField = QLineEdit()
+        self.empIDField = QLineEdit(self)
+        self.empIDField.setPlaceholderText("Employee ID")
+        self.empIDField.setValidator(
+            QRegularExpressionValidator(
+                QRegularExpression("[1|5]{1}[1-6]{1}[0][1-7]{1}[0-9]{3}")
+            )
+        )
 
         # First Name field
-        firstNameField = QLineEdit()
-
+        self.firstNameField = QLineEdit(self)
+        self.firstNameField.setValidator(
+            QRegularExpressionValidator(
+                QRegularExpression(r"^[A-Z][a-z]*(([\- ][A-Z])[a-z]*)*$")
+            )
+        )
         # Last Name field
-        lastNameField = QLineEdit()
-
+        self.lastNameField = QLineEdit(self)
+        self.lastNameField.setValidator(
+            QRegularExpressionValidator(
+                QRegularExpression(r"^[A-Z][a-z]*(([\- ][A-Z])[a-z]*)*$")
+            )
+        )
         # Gender
-        genderField = QLineEdit()
+        self.genderField = QComboBox(self)  # by default editable=False
+        self.genderField.addItems(["", "Female", "Male"])
 
         # Nationality Field
-        nationalityField = QLineEdit()
+        self.nationalityField = QComboBox(self)
+        self.nationalities = [
+            "",
+            "American",
+            "Beninese",
+            "British",
+            "Burkinabe",
+            "Chinese",
+            "French",
+            "German",
+            "Ghanaian",
+            "Indian",
+            "Ivorian",
+            "Lebanese",
+            "Liberian",
+            "Malian",
+            "Nigerian",
+            "Nigerien",
+            "Senegalese",
+            "South African",
+            "Togolese",
+        ]
+        self.nationalityField.addItems(self.nationalities)
 
         # Employee Address Field
-        empAdddrField = QLineEdit()
+        self.empAddrField = QComboBox(self, editable=True)  # type: ignore
+        self.addresses = [
+            "",
+            "Accra",
+            "East Legon",
+            "Madina",
+            "Achimota",
+            "Botwe",
+            "Adenta",
+            "Spintex",
+            "Tema",
+            "Aflao",
+            "Lapaz",
+            "Osu",
+            "Dansoman",
+            "Kaneshie",
+            "Kasoa",
+            "Kumasi",
+            "Takoradi",
+            "Tamale",
+            "Ashaiman",
+            "Ho",
+            "Akatsi",
+            "Asikuma",
+            "Amedzofe",
+            "Donkorkrom",
+            "Hohoe",
+            "Akossombo",
+            "Kpeve",
+        ]
+        self.empAddrField.addItems(self.addresses)
 
         # Email Field
-        emailField = QLineEdit()
+        self.emailField = QLineEdit(self)
+        self.emailField.setPlaceholderText("example@example.com")
 
         # Phone Number Field
-        phoneNumberField = QLineEdit()
+        self.phoneNumberField = QLineEdit(self)
+        self.phoneNumberField.setPlaceholderText("e.g. 24XXXXXXX (9 digits)")
+        self.phoneNumberField.setValidator(
+            QRegularExpressionValidator(QRegularExpression("[2|5][0-9]{8}"))
+        )
 
         # Salary Field
-        salaryField = QLineEdit()
+        self.salaryField = QLineEdit(self)
+        self.salaryField.setPlaceholderText("0.00")
+        self.salaryField.setValidator(
+            QRegularExpressionValidator(QRegularExpression("[0-9]{1,10}.[0-9]{2}"))
+        )
 
         # Hire Date Field
-        hireDateField = QLineEdit()
+        self.hireDateField = QDateEdit(self)
+        self.hireDateField.setDisplayFormat("yyyy-MM-dd")
+        self.hireDateField.setDate(QDate.currentDate())
 
         # Job ID Field
-        jobIDField = QLineEdit()
+        self.jobIDField = QComboBox(self)
+        self.depList = [
+            "",
+            "101",
+            "102",
+            "103",
+            "104",
+            "105",
+            "106",
+            "107",
+            "201",
+            "202",
+            "203",
+            "204",
+            "205",
+            "206",
+            "207",
+            "301",
+            "302",
+            "303",
+            "304",
+            "305",
+            "306",
+            "307",
+            "401",
+            "402",
+            "403",
+            "501",
+            "502",
+            "503",
+            "504",
+            "505",
+            "506",
+            "601",
+            "602",
+            "603",
+            "604",
+            "605",
+            "606",
+        ]
+        self.jobIDField.addItems(self.depList)
 
         # Department ID Field
-        depIDField = QLineEdit()
+        self.depIDField = QComboBox(self)
+        self.depIDField.addItems(["", "10", "20", "30", "40", "50", "60"])
 
         # Branch ID Field
-        brchIDField = QLineEdit()
+        self.brchIDField = QComboBox(self)
+        self.brchIDField.addItems(["", "1", "5"])
 
         # ADD BUTTON
-        addButton = QPushButton("Add", clicked=lambda: add())  # type: ignore
-
-        ### END OF CREATION NEW CUSTOMER FORM WIDGETS ###
-
-        ### SEARCH FORM WIDGETS ###
-
-        # Search Field
-        SearchField = QLineEdit()
-        SearchField.setPlaceholderText("Enter a search term")
-
-        # SEARCH BUTTON
-        SearchButton = QPushButton("Search", clicked=lambda: search())  # type: ignore
-
-        # ADD FILTER BUTTON
-        # !!! CONSIDER ADDING FILTER BUTTON !!!
-
-        ### END OF SEARCH FORM WIDGETS ###
-
-        ####################### END OF ADD WIDGETS ########################
-
-        ############################ LAYOUT ############################
-
-        hbox = QHBoxLayout()
-        vbox = QVBoxLayout()
-        NewForm = QFormLayout()
-        SearchForm = QFormLayout()
-
-        ### ADD WIDGETS TO vbox LAYOUT ###
-
-        # Employees label
-        vbox.addWidget(tableLabel, alignment=Qt.AlignmentFlag.AlignLeft)
-
-        # Employees Table
-        vbox.addWidget(table)
-
-        # PUT VALUES IN THE TABLE
-        query = """
-                SELECT * FROM EMPLOYEES
-                """
-        try:
-            connection = cx_Oracle.connect("elom/elom@localhost:1521/VVBANKING")
-            cursor = connection.cursor()
-
-            # Execute select all query
-            cursor.execute(query)
-            result = cursor.fetchall()
-
-            # Display the results in the table
-            table.setColumnCount(len(cursor.description))
-            table.setRowCount(len(result))
-            table.setHorizontalHeaderLabels(
-                [description[0] for description in cursor.description]
-            )
-
-            for row_idx, row in enumerate(result):
-                for col_idx, value in enumerate(row):
-                    item = QTableWidgetItem(str(value))
-                    table.setItem(row_idx, col_idx, item)
-
-            cursor.close()
-            connection.close()
-
-        except cx_Oracle.Error as err:
-            failgetdatamsg = QMessageBox.critical(
-                self,
-                "Coundn't Fetch Data",
-                "\n" + str(err) + "\n" + "Please contact the database administrator",
-            )
-
-        # BACK BUTTON
-        vbox.addWidget(backButton, alignment=Qt.AlignmentFlag.AlignRight)
-
-        ### END OF ADD WIDGETS TO vbox LAYOUT ###
-
-        # Nest vbox in hbox
-        hbox.addLayout(vbox)
+        self.addButton = QPushButton("Add", clicked=lambda: self.add())  # type: ignore
+        # CANCEL BUTTON
+        self.cancelButton = QPushButton("Clear", clicked=lambda: self.cancel())  # type: ignore
 
         ### ADD WIDGETS TO NewForm LAYOUT ###
 
-        NewForm.addRow("Employee ID", empIDField)
-        NewForm.addRow("First Name", firstNameField)
-        NewForm.addRow("Last Name", lastNameField)
-        NewForm.addRow("Gender", genderField)
-        NewForm.addRow("Nationality", nationalityField)
-        NewForm.addRow("Address", empAdddrField)
-        NewForm.addRow("Email", emailField)
-        NewForm.addRow("Phone Number", phoneNumberField)
-        NewForm.addRow("Salary", salaryField)
-        NewForm.addRow("Hire Date", hireDateField)
-        NewForm.addRow("Job ID", jobIDField)
-        NewForm.addRow("Department ID", depIDField)
-        NewForm.addRow("Branch ID", brchIDField)
-        NewForm.addRow(addButton)
-
+        self.NewForm.addRow("Employee ID", self.empIDField)
+        self.NewForm.addRow("First Name", self.firstNameField)
+        self.NewForm.addRow("Last Name", self.lastNameField)
+        self.NewForm.addRow("Gender", self.genderField)
+        self.NewForm.addRow("Nationality", self.nationalityField)
+        self.NewForm.addRow("Address", self.empAddrField)
+        self.NewForm.addRow("Email", self.emailField)
+        self.NewForm.addRow("Phone Number", self.phoneNumberField)
+        self.NewForm.addRow("Salary", self.salaryField)
+        self.NewForm.addRow("Hire Date", self.hireDateField)
+        self.NewForm.addRow("Job ID", self.jobIDField)
+        self.NewForm.addRow("Department ID", self.depIDField)
+        self.NewForm.addRow("Branch ID", self.brchIDField)
+        self.NewForm.addRow(self.addButton)
+        self.NewForm.addRow(self.cancelButton)
         ### END OF ADD WIDGETS TO NewForm LAYOUT ###
 
-        ### ADD WIDGETS TO SearchForm LAYOUT ###
-        SearchForm.addRow(SearchField)
-        SearchForm.addRow(SearchButton)
+    ##################### BUTTON FUNCTIONS #####################
 
-        ### END OF ADD WIDGETS TO SearchForm LAYOUT ###
+    ### ADD RECORD FORM FUNCTIONS ###
+    # CANCEL BUTTON
+    def cancel(self):
+        """
+        Function to clear all fields in the Add Record form when the Cancel button is clicked.
 
-        ### SEARCH DOCK ###
+        Args:
+            None
 
-        # ADD DOCK WIDGET FOR SEARCH
-        SearchDock = QDockWidget("Search")
-        # SearchDock.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
-        self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, SearchDock)
+        Returns:
+            None
+        """
+        # Ask user for confirmation
+        msg = QMessageBox.question(
+            self,
+            "Confirmation",
+            "Do you really want to clear all fields?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+        )
+        if msg == QMessageBox.StandardButton.Yes:
+            # clear fields
+            self.empIDField.clear()
+            self.firstNameField.clear()
+            self.lastNameField.clear()
+            self.genderField.setCurrentIndex(0)
+            self.nationalityField.setCurrentIndex(0)
+            self.empAddrField.setCurrentIndex(0)
+            self.emailField.clear()
+            self.phoneNumberField.clear()
+            self.salaryField.clear()
+            self.hireDateField.setDate(QDate.currentDate())
+            self.jobIDField.clear()
+            self.depIDField.setCurrentIndex(0)
+            self.brchIDField.setCurrentIndex(0)
+        else:
+            pass
 
-        # END DOCK WIDGET FOR SEARCH
+    # ADD BUTTON
+    def add(self):
+        """
+        This method is called when the user clicks the "Add" button in the GUI. It retrieves the data entered by the user
+        in the various fields, validates the data, and inserts a new record into the "ACCOUNTS" table in the database.
+        """
 
-        # ADD WIDGETS TO SEARCH DOCK
-        SearchDockWidget = QWidget()
-        SearchDockWidget.setLayout(SearchForm)
-        SearchDock.setWidget(SearchDockWidget)
+        self.insertQuery = f"""
+                insert into {self.entity} values (:1, :2, :3, :4, :5, :6, :7, :8, :9, :10, :11, :12, :13)
+                """
 
-        ### END OF SEARCH DOCK ###
+        ### GRAB TEXT IN THE FIELDS AND ADD LOGIC ###
+        self.empID = self.empIDField.text()
+        self.firstName = self.firstNameField.text()
+        self.lastName = self.lastNameField.text()
+        self.gender = self.genderField.currentText()
+        self.nationality = self.nationalityField.currentText()
+        self.empAddr = self.empAddrField.currentText()
+        self.email = self.emailField.text()
+        self.phoneNumber = self.phoneNumberField.text()
+        self.salary = self.salaryField.text()
+        self.hireDate = self.hireDateField.text()
+        self.jobID = self.jobIDField.currentText()
+        self.depID = self.depIDField.currentText()
+        self.brchID = self.brchIDField.currentText()
 
-        ###  NEW CUSTOMER DOCK ###
+        # create a list of the data entered by the user
+        self.columnsData = [
+            self.empID,
+            self.firstName,
+            self.lastName,
+            self.gender,
+            self.nationality,
+            self.empAddr,
+            self.email,
+            self.phoneNumber,
+            self.salary,
+            self.hireDate,
+            self.jobID,
+            self.depID,
+            self.brchID,
+        ]
 
-        # ADD DOCK WIDGET FOR NEW RECORD
+        ### FIELDS VALIDATI0N LOGIC ###
+        # Check emptiness field by field, exact field length and convert integer/float attributes to int/float
+        # Employee ID
+        if self.empID == "" or len(str(self.empID)) != 7:
+            QMessageBox.warning(self, "Warning", "Please enter an Employee ID")  # noqa
+            return self.empID
+        else:
+            self.empID = int(self.empID)
+        # First name
+        if self.firstName == "":
+            QMessageBox.warning(self, "Warning", "Please enter a First Name")
+            return self.firstName
+        # Last name
+        if self.lastName == "":
+            QMessageBox.warning(self, "Warning", "Please enter a last name")
+            return self.lastName
+        # gender
+        if self.gender == "":
+            QMessageBox.warning(self, "Warning", "Please choose a valid gender")
+            return self.gender
+        # nationality
+        if self.nationality == "":
+            QMessageBox.warning(self, "Warning", "Please choose a valid nationality")
+            return self.nationality
+        # address
+        if self.empAddr == "":
+            QMessageBox.warning(self, "Warning", "Please choose a valid address")
+            return self.empAddr
+        # email
+        if (
+            self.email == ""
+            or "@" not in self.email
+            or "." not in self.email.split("@")[1]
+        ):
+            QMessageBox.warning(self, "Invalid Email", "Please enter a valid email")
+            return self.email
+        # phone number
+        if self.phoneNumber == "" or len(str(self.phoneNumber)) != 9:
+            QMessageBox.warning(
+                self, "Invalid Phone Number", "Please enter a valid phone number"
+            )
+            return self.phoneNumber
+        else:
+            self.phoneNumber = int(self.phoneNumber)
+        # salary
+        if self.salary == "" or len(str(self.salary)) < 4:
+            QMessageBox.warning(
+                self, "Invalid salary value", "Please enter a valid salary value"
+            )
+            return self.salary
+        else:
+            self.salary = float(self.salary)
+        # Hire date
+        # job ID
+        if self.jobID == "":
+            QMessageBox.warning(self, "Invalid value", "Please choose a valid value")
+            return self.jobID
+        elif self.jobID != self.empIDField.text()[1:4]:
+            QMessageBox.warning(
+                self,
+                "Invalid job ID value",
+                "Job ID should match with the 3 digits after employee ID first digit"
+                + "\n"
+                + "Please choose a valid value",
+            )
+            return self.jobID
+        else:
+            self.jobID = int(self.jobID)
+        # department ID
+        if self.depID == "":
+            QMessageBox.warning(
+                self, "Invalid department ID value", "Please choose a valid value"
+            )
+            return self.depID
+        elif self.depID != self.jobIDField.currentText()[:2]:
+            QMessageBox.warning(
+                self,
+                "Invalid department ID value",
+                "Department ID should match with ID first two digits"
+                + "\n"
+                + "Please choose a valid value",
+            )
+        else:
+            self.depID = int(self.depID)
+        # branch ID
+        if self.brchID == "":
+            QMessageBox.warning(
+                self, "Invalid branch ID value", "Please choose a valid value"
+            )
+            return self.brchID
+        elif self.brchID != self.empIDField.text()[0]:
+            QMessageBox.warning(
+                self,
+                "Invalid branch ID value",
+                "Branch ID should match with employee ID first digit"
+                + "\n"
+                + "Please choose a valid value",
+            )
+            return self.brchID
+        else:
+            self.brchID = int(self.brchID)
+        # END OF FIELDS VALIDATION LOGIC
 
-        NewDock = QDockWidget("New Record")
-        # NewDock.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
-        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, NewDock)
-
-        # END DOCK WIDGET FOR NEW CUSTOMER
-
-        # ADD WIDGETS TO NEW CUSTOMER DOCK
-        NewDockWidget = QWidget()
-        NewDockWidget.setLayout(NewForm)
-        NewDock.setWidget(NewDockWidget)
-
-        ### END OF NEW CUSTOMER DOCK ###
-
-        ### Center window content ###
-        container = QWidget()
-        container.setLayout(hbox)
-        self.setCentralWidget(container)
-
-        ########################## END OF LAYOUT ##########################
-
-        ##################### BUTTON FUNCTIONS #####################
-
-        # BACK BUTTON
-        def back():
-            # print('Back')
-            from win_02_2_HRDashboard import hrDashboard
-
-            self.hrDashboard = hrDashboard()
-            self.hide()
-            self.hrDashboard.show()
-
-        # ADD BUTTON
-        def add():
-            print("New record added")
-
-        # SEARCH BUTTON
-        def search():
-            print("Search")
-
-        ##################### END OF BUTTON FUNCTIONS #####################
-
-    ##################### MENU BAR FUNCTIONS ??? #####################
-
-    # Open New Record Dock
-    def newRecord(self):
-        pass
-
-    # Delete selected record from database
-    def delRecord(self):
-        pass
-
-    # Save button: Commit changes to the database
-    def saveChanges(self):
-        pass
-
-    # Rollback transactions
-    def undoChanges(self):
-        pass
-
-    # Redo transactions
-    def redoChanges(self):
-        pass
-
-    # Cut selected text
-    def cut(self):
-        pass
-
-    # Copy selected text
-    def copy(self):
-        pass
-
-    # Paste selected text
-    def paste(self):
-        pass
-
-    # Open Search Dock
-    def searchdock(self):
-        pass
-
-    # Open About window
-    def about(self):
-        pass
-
-    ##################### END OF MENU BAR FUNCTIONS #####################
-
-    ##################### CENTER FUNCTION #####################
-    def showEvent(self, event):
-        self.center()
-        super().showEvent(event)
-
-    def center(self):
-        frame = self.frameGeometry()
-        screen = QGuiApplication.primaryScreen()
-        center = screen.availableGeometry().center()  # type: ignore
-        frame.moveCenter(center)
-        x = min(frame.topLeft().x(), screen.availableGeometry().right() - frame.width())  # type: ignore
-        y = min(frame.topLeft().y(), screen.availableGeometry().bottom() - frame.height())  # type: ignore
-        self.move(x, y)
-
-    ############################# END OF CENTER FUNCTION #############################
+        # execute the insert query and ask to clear fields
+        self.dataInsert(self.insertQuery, self.columnsData)
+        self.cancel()
+        # END OF ADD FUNCTION
 
 
 if __name__ == "__main__":
@@ -540,23 +433,11 @@ if __name__ == "__main__":
 
         myappid = "mycompany.myproduct.subproduct.version"
         windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
-    # except ImportError:
-    # pass
+    except ImportError:
+        pass
     finally:
-        # create the QApplication object
         app = QApplication(sys.argv)
-
-        # create the main window
         empwindow = employees()
-
-        # show the window
         empwindow.show()
-
-        # DARK THEME
-        # https://pypi.org/project/pyqtdarktheme/
-        # pip install pyqtdarktheme
-        # Apply the complete dark theme to Qt App.
         qdarktheme.setup_theme("auto")
-
-        # start the event loop
         sys.exit(app.exec())

@@ -1,11 +1,9 @@
-import typing
 from PyQt6 import QtCore
 from PyQt6.QtWidgets import (
     QApplication,
     QMainWindow,
     QWidget,
     QLabel,
-    QLineEdit,
     QPushButton,
     QVBoxLayout,
 )
@@ -29,11 +27,11 @@ import sys
 
 # Construction of class dashboard, blueprint for Customer Service and HR dashboards
 class dashboard(QMainWindow):
-    def __init__(self, windowTitle: str, entities: dict) -> None:
+    def __init__(self):
         super().__init__()
 
         # set the window title
-        self.setWindowTitle(windowTitle)
+        self.setWindowTitle("Dashboard")
 
         # set WINDOW ICON (icons from icons8.com)
         self.setWindowIcon(QIcon("./assets/bank.png"))
@@ -49,9 +47,6 @@ class dashboard(QMainWindow):
         # initilize other windows member to None
         self.welcome = None
         self.queryInterface = None
-        # department specific entities
-        self.entities = entities
-
 
         # CREATE THE USER INTERFACE
         self.initUI()
@@ -61,7 +56,6 @@ class dashboard(QMainWindow):
         Initializes the customers window.
         """
         ######################### CREATE WIDGETS #########################
-
         # Dashboard label
         self.dashboardLabel = QLabel("DASHBOARD")
         self.dashboardLabel.setFont(QFont("Century", 28))
@@ -73,10 +67,12 @@ class dashboard(QMainWindow):
         self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         ### Push buttons for entities ###
-        self.buttons = [
-            QPushButton(entity, clicked=lambda: self.open(self.entities[entity]))  # type: ignore
-            for entity in self.entities
-        ]
+        self.button1 = QPushButton("Button 1")  # type: ignore
+        self.button2 = QPushButton("Button 2")  # type: ignore
+        self.button3 = QPushButton("Button 3")  # type: ignore
+        self.button4 = QPushButton("Button 4")  # type: ignore
+        self.button5 = QPushButton("Button 5")  # type: ignore
+        self.button6 = QPushButton("Button 6")  # type: ignore
 
         # TOOL LABEL
         self.toolLabel = QLabel("Tools")
@@ -92,11 +88,9 @@ class dashboard(QMainWindow):
 
         # quit button
         self.quitButton = QPushButton("Quit", clicked=lambda: self.quit())  # type: ignore
-
         ####################### END OF ADD WIDGETS #######################
 
         ############################ LAYOUT ############################
-
         layout = QVBoxLayout()
 
         ### ADD WIDGETS TO LAYOUT ###
@@ -111,8 +105,12 @@ class dashboard(QMainWindow):
         layout.addWidget(self.label)
 
         # Push buttons for entities
-        for button in self.buttons:
-            layout.addWidget(button)
+        layout.addWidget(self.button1)
+        layout.addWidget(self.button2)
+        layout.addWidget(self.button3)
+        layout.addWidget(self.button4)
+        layout.addWidget(self.button5)
+        layout.addWidget(self.button6)
 
         # Tool label
         layout.addWidget(self.toolLabel)
@@ -136,20 +134,33 @@ class dashboard(QMainWindow):
         container = QWidget()
         container.setLayout(layout)
         self.setCentralWidget(container)
-        ####################################
+        ############################# END OF LAYOUT #############################
 
     ##################### BUTTON FUNCTIONS #####################
-
+    # OPEN WINDOW function
     def open(self, entityWindow):
+        """
+        Takes the class of a window to be opened as an argument,
+        creates an instance of that class
+        and opens it.
+        """
         window = entityWindow()
         self.hide()
         window.show()
 
     # Push button for Data Query Wizard
     def dataQueryWizard(self):
-        self.queryInterface = queryInterface()
-        self.hide()
-        self.queryInterface.show()
+        from win_02_3_QueryInterface_CS import CSqueryInterface
+        from win_02_3_QueryInterface_HR import HRqueryInterface
+
+        if queryInterface(dep="CS"):
+            self.queryInterface = CSqueryInterface()
+            self.hide()
+            self.queryInterface.show()
+        else:
+            self.queryInterface = HRqueryInterface()
+            self.hide()
+            self.queryInterface.show()
 
     # Logout Push button
     def logout(self):
@@ -165,7 +176,7 @@ class dashboard(QMainWindow):
 
     ##################### END OF BUTTON FUNCTIONS #####################
 
-    ##################### center function #####################
+    ############################### CENTER FUNCTION ###############################
     def showEvent(self, event):
         self.center()
         super().showEvent(event)
@@ -180,26 +191,33 @@ class dashboard(QMainWindow):
         self.move(x, y)
 
     ############################# END OF CENTER FUNCTION #############################
-
-    # END OF dashboard class
-
-
-csEntities = {
-    "Customers": customers,
-    "Accounts": accounts,
-    "Cards": cards,
-    "Transactions": transactions,
-    "Loans": loans,
-    "Loan Payments": loansPayment
-}
+    # END OF DASHBOARD CLASS
 
 
 class cusServDashboard(dashboard):
     def __init__(self):
-        super().__init__(
-            windowTitle= "Customer Service Dashboard",
-            entities= csEntities
-        )
+        super().__init__()
+
+        # set the window title
+        self.setWindowTitle("WEL Bank - Customer Service Dashboard")
+        # Modify the existing buttons and connect their clicked signal
+        self.button1.setText("Customers")
+        self.button1.clicked.connect(lambda: self.open(customers))
+
+        self.button2.setText("Accounts")
+        self.button2.clicked.connect(lambda: self.open(accounts))
+
+        self.button3.setText("Cards")
+        self.button3.clicked.connect(lambda: self.open(cards))
+
+        self.button4.setText("Transactions")
+        self.button4.clicked.connect(lambda: self.open(transactions))
+
+        self.button5.setText("Loans")
+        self.button5.clicked.connect(lambda: self.open(loans))
+
+        self.button6.setText("Loan Payments")
+        self.button6.clicked.connect(lambda: self.open(loansPayment))
 
 
 if __name__ == "__main__":
@@ -209,20 +227,11 @@ if __name__ == "__main__":
 
         myappid = "mycompany.myproduct.subproduct.version"
         windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
-    # except ImportError:
-    # pass
+    except ImportError:
+        pass
     finally:
-        # create the QApplication object
         app = QApplication(sys.argv)
-
-        # create the main window
         cusdashwindow = cusServDashboard()
-
-        # show the window
         cusdashwindow.show()
-
-        # DARK THEME
         qdarktheme.setup_theme("auto")
-
-        # start the event loop
         sys.exit(app.exec())

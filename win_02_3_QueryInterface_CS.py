@@ -1,23 +1,45 @@
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QHBoxLayout, QGridLayout, QTextEdit, QTableWidget, QListWidget
+from PyQt6.QtWidgets import (
+    QApplication,
+    QMainWindow,
+    QWidget,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QVBoxLayout,
+    QHBoxLayout,
+    QGridLayout,
+    QTextEdit,
+    QTableWidget,
+    QListWidget,
+    QMessageBox,
+    QTableWidgetItem,
+    QFileDialog,
+)
 from PyQt6.QtGui import QFont
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QGuiApplication, QIcon
 
+# other modules
+import cx_Oracle
+import datetime
 import qdarktheme
 import sys
 
+
 class queryInterface(QMainWindow):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, dep: str):
+        super().__init__()
 
         # set the window title
-        windowTitle = 'Query Interface'
+        windowTitle = "WEL Bank - Query Interface"
         self.setWindowTitle(windowTitle)
+
+        self.dep = dep
 
         # set WINDOW ICON
         self.setWindowIcon(QIcon("./assets/query.png"))
 
-        # Set window size 
+        # Set window size
         width = 800
         height = 600
         self.resize(width, height)
@@ -33,77 +55,77 @@ class queryInterface(QMainWindow):
 
     # user interface function
     def initUI(self):
-
         ########################### ADD WIDGETS ###########################
 
         # Data Query Tool
-        dataQueryToolLabel = QLabel('Data Query Tool')
-        dataQueryToolLabel.setFont(QFont("Times", 24))
-        dataQueryToolLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.dataQueryToolLabel = QLabel("Data Query Tool")
+        self.dataQueryToolLabel.setFont(QFont("Times", 24))
+        self.dataQueryToolLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # Enter Your Query
-        enterYourQueryLabel = QLabel('Enter Your Query:')
+        self.enterYourQueryLabel = QLabel("Enter Your Query:")
 
         # Query Field - QTextEdit
-        queryField = QTextEdit()
-        queryField.setPlaceholderText('Enter your query here')
-        # setFixedHeight(100)
-        queryField.setFixedHeight(100) 
+        self.queryField = QTextEdit()
+        self.queryField.setPlaceholderText("Enter your query here")
+        self.queryField.setFixedHeight(100)  # set Fixed Height to 100
 
         # Execute Query Button
-        executeQueryButton = QPushButton('Execute Query', clicked=lambda: self.executeQuery())  # type: ignore
+        self.executeQueryButton = QPushButton("Execute Query", clicked=lambda: self.executeQuery())  # type: ignore
 
         # QUERY RESULTS: QTableWidget
-        queryResultsLabel = QTableWidget()
+        self.queryResultsTable = QTableWidget()
 
         # Export to Excel Button
-        exportToExcelButton = QPushButton('Export to Excel', clicked=lambda: self.exportToExcel())  # type: ignore
+        self.exportToExcelButton = QPushButton("Export to Excel", clicked=lambda: self.exportToExcel())  # type: ignore
 
         # BACK BUTTON
-        backButton = QPushButton('Back', clicked=lambda: self.back())  # type: ignore
+        self.backButton = QPushButton("Back", clicked=lambda: self.back())  # type: ignore
 
         # Previous Queries
-        previousQueriesLabel = QLabel('Previous Queries')
+        self.previousQueriesLabel = QLabel("Previous Queries")
         # QLISTWIDGET
-        list_queries = QListWidget()
-
+        self.listQueries = QListWidget()
+        # Clear button
+        self.clearButton = QPushButton("Clear", clicked=lambda: self.listQueries.clear())  # type: ignore
+        # Delete query button
+        self.deleteButton = QPushButton("Delete Query", clicked=lambda: self.delete())  # type: ignore
         ####################### END OF ADD WIDGETS ########################
 
-
         ############################## LAYOUT ##############################
-        
+
         hbox = QHBoxLayout()
         vbox1 = QVBoxLayout()
-        vbox2 = QVBoxLayout() 
+        vbox2 = QVBoxLayout()
 
         ### ADD WIDGETS TO vbox1 ###
 
         # Data Query Tool
-        vbox1.addWidget(dataQueryToolLabel)
+        vbox1.addWidget(self.dataQueryToolLabel)
 
         # set spacing between previous widget and next widget
         vbox1.addSpacing(20)
 
         # Enter Your Query
-        vbox1.addWidget(enterYourQueryLabel)
+        vbox1.addWidget(self.enterYourQueryLabel)
 
         # Query Field - QTextEdit
-        vbox1.addWidget(queryField)
+        vbox1.addWidget(self.queryField)
 
         # ADD AUTOCOMPLETE FUNCTIONALITY TO QUERY FIELD
         # !!!!!! NEED TO ADD THIS !!!!!!
 
         # Execute Query Button
-        vbox1.addWidget(executeQueryButton)
+        vbox1.addWidget(self.executeQueryButton)
 
         # QUERY RESULTS: QTableWidget
-        vbox1.addWidget(queryResultsLabel)
+        vbox1.addWidget(self.queryResultsTable)
 
         # Export to Excel Button
-        vbox1.addWidget(exportToExcelButton)
+        vbox1.addWidget(self.exportToExcelButton)
 
         # BACK BUTTON
-        vbox1.addWidget(backButton)
+        vbox1.addWidget(self.backButton)
 
         ### END ADD WIDGETS TO vbox1 ###
 
@@ -113,9 +135,13 @@ class queryInterface(QMainWindow):
         ### ADD WIDGETS TO vbox2 ###
 
         # Label Previous Queries
-        vbox2.addWidget(previousQueriesLabel)
+        vbox2.addWidget(self.previousQueriesLabel)
         # QLISTWIDGET
-        vbox2.addWidget(list_queries)
+        vbox2.addWidget(self.listQueries)
+        # Delete query button
+        vbox2.addWidget(self.deleteButton)
+        # Clear button
+        vbox2.addWidget(self.clearButton)
 
         ### END ADD WIDGETS TO vbox2 ###
 
@@ -124,35 +150,146 @@ class queryInterface(QMainWindow):
 
         ### END ADD WIDGETS TO hbox ###
 
-
         ### Center window content ###
         container = QWidget()
         container.setLayout(hbox)
         self.setCentralWidget(container)
-
         ########################## END OF LAYOUT ##########################
 
     ##################### BUTTON FUNCTIONS #####################
-
     # Execute Query Button
     def executeQuery(self):
-        print('Query executed')
+        self.query = self.queryField.toPlainText()
+        self.displayTable(self.query, self.dep)
+        # Add query to list
+        self.listQueries.addItem(self.query)
+        # Clear query field
+        self.queryField.clear()
 
     # Export to Excel Button
     def exportToExcel(self):
-        print('Exported to Excel')
+        # print("Exported to Excel")
+        import pandas as pd
+
+        options = QFileDialog().options()
+        file_path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Export to Excel",
+            "",
+            "Excel Files (*.xlsx);;All Files (*)",
+            options=options,
+        )
+
+        if file_path:
+            try:
+                connection = cx_Oracle.connect(f"elom/elom@localhost:1521/VVBANKING")  # type: ignore
+                cursor = connection.cursor()
+
+                # Execute the query
+                cursor.execute(self.query.strip())
+                result = cursor.fetchall()
+
+                # Convert result to a DataFrame
+                df = pd.DataFrame(
+                    result,
+                    columns=[description[0] for description in cursor.description],
+                )
+
+                # Export DataFrame to Excel
+                df.to_excel(file_path, index=False)
+
+                cursor.close()
+                connection.close()
+
+                QMessageBox.information(self, "Export to Excel", "Export Successful")
+
+            except Exception as e:
+                QMessageBox.warning(
+                    self, "Export to Excel", f"Error exporting to Excel - {str(e)}"
+                )
 
     # BACK BUTTON
     def back(self):
-        # print('Back')
         from win_02_1_CusServDashboard import cusServDashboard
+
         self.cusServDashboard = cusServDashboard()
         self.hide()
         self.cusServDashboard.show()
 
+    # Clear previous queries button
+    def clear(self):
+        self.listQueries.clear()
+
+    # Delete query button
+    def delete(self):
+        # Grab the selected row
+        self.selectedRow = self.listQueries.currentRow()
+        # Delete selected row
+        self.listQueries.takeItem(self.selectedRow)
+
     ##################### END OF BUTTON FUNCTIONS #####################
 
+    # SECONDARY FUNCTION
+    # FUNCTION to Execute SQL QUERY and display values in a table
+    def displayTable(self, query, dep):
+        """
+        Given a SQL query, fetches the data from the database and displays it in a table.
 
+        Args:
+            query (str): The SQL query to execute.
+
+        Returns:
+            None.
+        """
+        if dep == "CS":
+            usn = "kwameowusu"
+        elif dep == "HR":
+            usn = "kwadwohanson"
+
+        # initialize the connection variable
+        connection = None
+        try:
+            connection = cx_Oracle.connect(f"elom/elom@localhost:1521/VVBANKING")  # type: ignore
+
+        except cx_Oracle.Error as err:
+            QMessageBox.critical(
+                self,
+                "Database Connection Error",
+                "\n" + str(err) + "\n" + "Please contact the database administrator",
+            )
+
+        else:
+            try:
+                cursor = connection.cursor()
+                cursor.execute(query)
+            except cx_Oracle.Error as err:
+                QMessageBox.critical(
+                    self,
+                    "Couldn't Fetch Data",
+                    "\n" + str(err) + "\n" + "Please contact the administrator",
+                )
+            else:
+                # Grab cursor result
+                result = cursor.fetchall()
+
+                # Display the results in the table
+                self.queryResultsTable.setColumnCount(len(cursor.description))
+                self.queryResultsTable.setRowCount(len(result))
+                self.queryResultsTable.setHorizontalHeaderLabels(
+                    [description[0] for description in cursor.description]
+                )
+                for row_idx, row in enumerate(result):
+                    for col_idx, value in enumerate(row):
+                        # Check if the value is a datetime
+                        if isinstance(value, datetime.datetime):
+                            item = QTableWidgetItem(value.strftime("%d-%b-%Y").upper())
+                        else:
+                            item = QTableWidgetItem(str(value))
+                        self.queryResultsTable.setItem(row_idx, col_idx, item)
+                cursor.close()
+        finally:
+            if connection is not None:
+                connection.close()
 
     ############################## CENTER WINDOW FUNCTION ##############################
     def showEvent(self, event):
@@ -160,38 +297,34 @@ class queryInterface(QMainWindow):
         super().showEvent(event)
 
     def center(self):
-        frame = self.frameGeometry() 
+        frame = self.frameGeometry()
         screen = QGuiApplication.primaryScreen()
-        center = screen.availableGeometry().center() # type: ignore
+        center = screen.availableGeometry().center()  # type: ignore
         frame.moveCenter(center)
-        x = min(frame.topLeft().x(), screen.availableGeometry().right() - frame.width()) # type: ignore
-        y = min(frame.topLeft().y(), screen.availableGeometry().bottom() - frame.height()) # type: ignore
+        x = min(frame.topLeft().x(), screen.availableGeometry().right() - frame.width())  # type: ignore
+        y = min(frame.topLeft().y(), screen.availableGeometry().bottom() - frame.height())  # type: ignore
         self.move(x, y)
+
     ############################## END OF CENTER FUNCTION #############################
 
 
+class CSqueryInterface(queryInterface):
+    def __init__(self):
+        super().__init__(dep="CS")
 
-if __name__ == '__main__':
 
+if __name__ == "__main__":
     try:
         # Include in try/except block if you're also targeting Mac/Linux
-        from ctypes import windll # only exists on Windows
-        myappid = 'mycompany.myproduct.subproduct.version'
+        from ctypes import windll  # only exists on Windows
+
+        myappid = "mycompany.myproduct.subproduct.version"
         windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
-    # except ImportError:
-        # pass
+    except ImportError:
+        pass
     finally:
-        # create the QApplication object
         app = QApplication(sys.argv)
-
-        # create the main window
-        querywindow = queryInterface()
-
-        # show the window
+        querywindow = CSqueryInterface()
         querywindow.show()
-
-        # DARK THEME
         qdarktheme.setup_theme("auto")
-
-        # start the event loop
         sys.exit(app.exec())
