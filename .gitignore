@@ -3,3 +3,6 @@ license.txt
 
 # ignore __pycache__ folder
 __pycache__/
+
+# ignore db 
+queriesList.db

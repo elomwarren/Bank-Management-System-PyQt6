@@ -1,13 +1,6 @@
 from PyQt6.QtWidgets import (
     QApplication,
-    QLineEdit,
-    QPushButton,
-    QMessageBox,
-    QComboBox,
-    QDateEdit,
 )
-from PyQt6.QtCore import QRegularExpression, QDate
-from PyQt6.QtGui import QRegularExpressionValidator
 
 # import necessary modules from other windows
 from win_03_1_1_CusTable import entityWindow

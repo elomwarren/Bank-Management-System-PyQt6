@@ -23,15 +23,18 @@ import sys
 
 
 class welcome(QMainWindow):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self):
+        super().__init__()
 
         # set the window title
         windowTitle = "WEL Bank"
         self.setWindowTitle(windowTitle)
 
         # set WINDOW ICON (icons from icons8.com)
-        self.setWindowIcon(QIcon("./assets/bank.png")) 
+        self.setWindowIcon(QIcon("./assets/bank.png"))
+
+        # Set cream color for the background
+        # self.setStyleSheet("background-color: #HEXcode")
 
         # Set window size
         width = 800
@@ -57,7 +60,7 @@ class welcome(QMainWindow):
         ######################### CREATE WIDGETS #########################
         # self.welcomeLabel = QLabel("Welcome to WEL Bank")
         # self.welcomeLabel.setFont(QFont("Century", 28))
-        self.logo = QPixmap("./assets/WEL_Bank-logos_transparent_300x300.png") 
+        self.logo = QPixmap("./assets/WEL_Bank-logos_transparent_greentext_300x300.png")
         self.logolabel = QLabel()
         self.logolabel.setPixmap(self.logo)
         self.logolabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -217,7 +220,11 @@ class welcome(QMainWindow):
 
     # Help button
     def help(self):
-        QMessageBox.information(self, "Help", "This is the Help section")
+        QMessageBox.information(
+            self,
+            "Help",
+            "This is the Help section" + "\n" + "Contact the IT Department",
+        )
 
     ##################### END OF BUTTON FUNCTIONS #####################
 

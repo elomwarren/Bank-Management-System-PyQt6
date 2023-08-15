@@ -3,11 +3,9 @@ from PyQt6.QtWidgets import (
     QMainWindow,
     QWidget,
     QLabel,
-    QLineEdit,
     QPushButton,
     QVBoxLayout,
     QHBoxLayout,
-    QGridLayout,
     QTextEdit,
     QTableWidget,
     QListWidget,
@@ -21,6 +19,7 @@ from PyQt6.QtGui import QGuiApplication, QIcon
 
 # other modules
 import cx_Oracle
+import sqlite3
 import datetime
 import qdarktheme
 import sys
@@ -35,6 +34,9 @@ class queryInterface(QMainWindow):
         self.setWindowTitle(windowTitle)
 
         self.dep = dep
+
+        # initialise sqlite3 DB
+        self.connDB()
 
         # set WINDOW ICON
         self.setWindowIcon(QIcon("./assets/query.png"))
@@ -59,7 +61,7 @@ class queryInterface(QMainWindow):
 
         # Data Query Tool
         self.dataQueryToolLabel = QLabel("Data Query Tool")
-        self.dataQueryToolLabel.setFont(QFont("Times", 24))
+        self.dataQueryToolLabel.setFont(QFont("Arial", 24))
         self.dataQueryToolLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # Enter Your Query
@@ -85,9 +87,9 @@ class queryInterface(QMainWindow):
         # Previous Queries
         self.previousQueriesLabel = QLabel("Previous Queries")
         # QLISTWIDGET
-        self.listQueries = QListWidget()
+        self.listQueries = QListWidget(self)
         # Clear button
-        self.clearButton = QPushButton("Clear", clicked=lambda: self.listQueries.clear())  # type: ignore
+        self.clearButton = QPushButton("Clear", clicked=lambda: self.clear())  # type: ignore
         # Delete query button
         self.deleteButton = QPushButton("Delete Query", clicked=lambda: self.delete())  # type: ignore
         ####################### END OF ADD WIDGETS ########################
@@ -156,6 +158,9 @@ class queryInterface(QMainWindow):
         self.setCentralWidget(container)
         ########################## END OF LAYOUT ##########################
 
+        # Grab data from database
+        self.grabFromDB()
+
     ##################### BUTTON FUNCTIONS #####################
     # Execute Query Button
     def executeQuery(self):
@@ -165,6 +170,8 @@ class queryInterface(QMainWindow):
         self.listQueries.addItem(self.query)
         # Clear query field
         self.queryField.clear()
+        # save queries to db
+        self.saveQueriesToDB()
 
     # Export to Excel Button
     def exportToExcel(self):
@@ -182,7 +189,7 @@ class queryInterface(QMainWindow):
 
         if file_path:
             try:
-                connection = cx_Oracle.connect(f"elom/elom@localhost:1521/VVBANKING")  # type: ignore
+                connection = cx_Oracle.connect("elom/elom@localhost:1521/VVBANKING")  # type: ignore
                 cursor = connection.cursor()
 
                 # Execute the query
@@ -218,6 +225,19 @@ class queryInterface(QMainWindow):
 
     # Clear previous queries button
     def clear(self):
+        # Create a database or connect to one
+        conn = sqlite3.connect("queriesList.db")
+        cur = conn.cursor()
+        # create table to store queries
+        if self.dep == "CS":
+            cur.execute("DELETE FROM QUERIES_LIST_CS")
+        else:
+            cur.execute("DELETE FROM QUERIES_LIST_HR")
+        # commit changes
+        conn.commit()
+        cur.close()
+        conn.close()
+        # clear the list
         self.listQueries.clear()
 
     # Delete query button
@@ -226,6 +246,102 @@ class queryInterface(QMainWindow):
         self.selectedRow = self.listQueries.currentRow()
         # Delete selected row
         self.listQueries.takeItem(self.selectedRow)
+        # Create a database or connect to one
+        conn = sqlite3.connect("queriesList.db")
+        cur = conn.cursor()
+
+        # create table to store queries
+        if self.dep == "CS":
+            cur.execute(
+                f"delete from QUERIES_LIST_CS where rowid = {self.selectedRow + 1} "
+            )
+        else:
+            cur.execute(
+                f"delete from QUERIES_LIST_HR where rowid = {self.selectedRow + 1} "
+            )
+        # commit changes
+        conn.commit()
+        conn.close()
+
+    # SECONDARY FUNCTIONS
+    def saveQueriesToDB(self):
+        conn = sqlite3.connect("queriesList.db")
+        cur = conn.cursor()
+        if self.dep == "CS":
+            cur.execute("DELETE FROM QUERIES_LIST_CS")
+        else:
+            cur.execute("DELETE FROM QUERIES_LIST_HR")
+        # initialize list to hold queries
+        self.items = []
+        # loop through listWidget to pull out each query/item
+        for index in range(self.listQueries.count()):
+            self.items.append(self.listQueries.item(index))
+
+        for item in self.items:
+            # add items to the database
+            if self.dep == "CS":
+                cur.execute(
+                    f"INSERT INTO QUERIES_LIST_CS VALUES (:item)",
+                    {
+                        "item": item.text(),
+                    },
+                )
+            else:
+                cur.execute(
+                    f"INSERT INTO QUERIES_LIST_HR VALUES (:item)",
+                    {
+                        "item": item.text(),
+                    },
+                )
+
+        # DB operations
+        conn.commit()
+        conn.close()
+
+    def grabFromDB(self):
+        # Create a database or connect to one
+        conn = sqlite3.connect("queriesList.db")
+        cur = conn.cursor()
+
+        # create table to store queries
+        if self.dep == "CS":
+            query = """
+                select * from QUERIES_LIST_CS
+            """
+        else:
+            query = """
+                select * from QUERIES_LIST_HR
+            """
+        cur.execute(query)
+        records = cur.fetchall()
+
+        # commit changes
+        conn.commit()
+        conn.close()
+
+        # loop through records and add to listWidget
+        for record in records:
+            self.listQueries.addItem(str(record[0]))
+
+    def connDB(self):
+        """
+        Arg: SQL query
+        Returns: None
+        connects to sqlite database,
+        creates table to store queries if it doesn't exist
+        """
+        # Create a database or connect to one
+        conn = sqlite3.connect("queriesList.db")
+        cur = conn.cursor()
+
+        # create table to store queries
+        if self.dep == "CS":
+            cur.execute("create table if not exists QUERIES_LIST_CS(QUERIES text)")
+        else:
+            cur.execute("create table if not exists QUERIES_LIST_HR(QUERIES text)")
+        # commit changes
+        conn.commit()
+        conn.close()
 
     ##################### END OF BUTTON FUNCTIONS #####################
 
@@ -242,14 +358,16 @@ class queryInterface(QMainWindow):
             None.
         """
         if dep == "CS":
-            usn = "kwameowusu"
+            self.usn = "kwameowusu"
         elif dep == "HR":
-            usn = "kwadwohanson"
+            self.usn = "kwadwohanson"
 
         # initialize the connection variable
         connection = None
         try:
-            connection = cx_Oracle.connect(f"elom/elom@localhost:1521/VVBANKING")  # type: ignore
+            connection = cx_Oracle.connect(
+                user=self.usn, password="12345", dsn="localhost:1521/VVBANKING"
+            )
 
         except cx_Oracle.Error as err:
             QMessageBox.critical(

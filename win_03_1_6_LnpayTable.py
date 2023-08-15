@@ -3,7 +3,6 @@ from PyQt6.QtWidgets import (
     QLineEdit,
     QPushButton,
     QMessageBox,
-    QComboBox,
     QDateEdit,
 )
 from PyQt6.QtCore import QRegularExpression, QDate
