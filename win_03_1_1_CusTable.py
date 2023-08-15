@@ -665,40 +665,41 @@ class entityWindow(QMainWindow):
             return QMessageBox.warning(
                 self, "No Record Selected", "Please select a record to delete"
             )
-        # Ask user to confirm delete
-        msg = QMessageBox.question(
-            self,
-            "Confirmation",
-            "Do you really want to delete this record?",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-        )
-        if msg == QMessageBox.StandardButton.Yes:
-            # Get the ID of the selected record
-            recordIDItem = self.table.item(currentRow, 0)
-            if recordIDItem is None:
-                return QMessageBox.warning(
-                    self, "No Record Selected", "Please select a record to delete"
-                )
-            else:
-                recordID = recordIDItem.text()
+        else:
+            # Ask user to confirm delete
+            msg = QMessageBox.question(
+                self,
+                "Confirmation",
+                "Do you really want to delete this record?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            )
+            if msg == QMessageBox.StandardButton.Yes:
+                # Get the ID of the selected record
+                recordIDItem = self.table.item(currentRow, 0)
+                if recordIDItem is None:
+                    return QMessageBox.warning(
+                        self, "No Record Selected", "Please select a record to delete"
+                    )
+                else:
+                    recordID = recordIDItem.text()
 
-            # Get the ID header
-            header = self.table.horizontalHeaderItem(0)
-            if header is None:
-                return QMessageBox.warning(
-                    self, "No Record Selected", "Please select a record to delete"
-                )
-            else:
-                header = header.text()
-                # Delete the record from the database
-                self.delQuery = (
-                    f"DELETE FROM {self.entity} WHERE {header} = {int(recordID)}"
-                )
-                # print(delQuery)
-                self.sqlExecute(self.delQuery)
-                # Refresh the table
-                self.table.setRowCount(0)
-                self.displayTable(self.selectQuery)
+                # Get the ID header
+                header = self.table.horizontalHeaderItem(0)
+                if header is None:
+                    return QMessageBox.warning(
+                        self, "No Record Selected", "Please select a record to delete"
+                    )
+                else:
+                    header = header.text()
+                    # Delete the record from the database
+                    self.delQuery = (
+                        f"DELETE FROM {self.entity} WHERE {header} = {recordID}"
+                    )
+                    # print(f"DELETE FROM {self.entity} WHERE {header} = {recordID}")
+                    self.sqlExecute(self.delQuery)
+                    # Refresh the table
+                    self.table.setRowCount(0)
+                    self.displayTable(self.selectQuery)
 
     # Save button: Commit changes to the database
     def saveChanges(self):
