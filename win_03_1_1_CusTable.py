@@ -488,6 +488,10 @@ class entityWindow(QMainWindow):
                 )
 
             else:
+                # Notify user of successful delete
+                QMessageBox.information(
+                    self, "Query Execution", "Query has been executed succesfully"
+                )
                 cursor.close()
 
         finally:
@@ -675,7 +679,8 @@ class entityWindow(QMainWindow):
                 return QMessageBox.warning(
                     self, "No Record Selected", "Please select a record to delete"
                 )
-            recordID = recordIDItem.text()
+            else:
+                recordID = recordIDItem.text()
 
             # Get the ID header
             header = self.table.horizontalHeaderItem(0)
@@ -683,19 +688,17 @@ class entityWindow(QMainWindow):
                 return QMessageBox.warning(
                     self, "No Record Selected", "Please select a record to delete"
                 )
-            header = header.text()
-
-            # Delete the record from the database
-            self.delQuery = (
-                f"DELETE FROM {self.entity} WHERE {header} = {int(recordID)}"
-            )
-            # print(delQuery)
-            self.sqlExecute(self.delQuery)
-            # Refresh the table
-            self.table.setRowCount(0)
-            self.displayTable(self.selectQuery)
-            # Notify user of successful delete
-            QMessageBox.information(self, "Record Deleted", "Record has been deleted")
+            else:
+                header = header.text()
+                # Delete the record from the database
+                self.delQuery = (
+                    f"DELETE FROM {self.entity} WHERE {header} = {int(recordID)}"
+                )
+                # print(delQuery)
+                self.sqlExecute(self.delQuery)
+                # Refresh the table
+                self.table.setRowCount(0)
+                self.displayTable(self.selectQuery)
 
     # Save button: Commit changes to the database
     def saveChanges(self):
