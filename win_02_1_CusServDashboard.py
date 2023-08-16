@@ -26,9 +26,10 @@ import sys
 
 # Construction of class dashboard, blueprint for Customer Service and HR dashboards
 class dashboard(QMainWindow):
-    def __init__(self):
+    def __init__(self,  dep: str):
         super().__init__()
 
+        self.dep = dep
         # set the window title
         self.setWindowTitle("Dashboard")
 
@@ -149,17 +150,17 @@ class dashboard(QMainWindow):
 
     # Push button for Data Query Wizard
     def dataQueryWizard(self):
-        from win_02_3_QueryInterface_CS import CSqueryInterface
+        from win_02_3_QueryInterface_CS import queryInterface, CSqueryInterface
         from win_02_3_QueryInterface_HR import HRqueryInterface
 
-        if queryInterface(dep="CS"):
-            self.queryInterface = CSqueryInterface()
+        if self.dep == "CS":
+            self.CSqueryInterface = CSqueryInterface()
             self.hide()
-            self.queryInterface.show()
-        else:
-            self.queryInterface = HRqueryInterface()
+            self.CSqueryInterface.show()
+        if self.dep == "HR":
+            self.HRqueryInterface = HRqueryInterface()
             self.hide()
-            self.queryInterface.show()
+            self.HRqueryInterface.show()
 
     # Logout Push button
     def logout(self):
@@ -195,7 +196,7 @@ class dashboard(QMainWindow):
 
 class cusServDashboard(dashboard):
     def __init__(self):
-        super().__init__()
+        super().__init__(dep="CS")
 
         # set the window title
         self.setWindowTitle("WEL Bank - Customer Service Dashboard")

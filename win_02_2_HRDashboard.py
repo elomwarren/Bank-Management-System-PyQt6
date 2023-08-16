@@ -16,7 +16,7 @@ import sys
 
 class hrDashboard(dashboard):
     def __init__(self) -> None:
-        super().__init__()
+        super().__init__(dep="HR")
 
         # set window title
         self.setWindowTitle("WEL Bank - HR Dashboard")

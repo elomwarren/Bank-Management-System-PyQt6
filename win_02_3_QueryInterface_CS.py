@@ -29,11 +29,10 @@ class queryInterface(QMainWindow):
     def __init__(self, dep: str):
         super().__init__()
 
-        # set the window title
-        windowTitle = "WEL Bank - Query Interface"
-        self.setWindowTitle(windowTitle)
-
         self.dep = dep
+        # set the window title
+        windowTitle = f"WEL Bank - {self.dep} Query Interface"
+        self.setWindowTitle(windowTitle)
 
         # initialise sqlite3 DB
         self.connDB()
@@ -218,10 +217,16 @@ class queryInterface(QMainWindow):
     # BACK BUTTON
     def back(self):
         from win_02_1_CusServDashboard import cusServDashboard
+        from win_02_2_HRDashboard import hrDashboard
 
-        self.cusServDashboard = cusServDashboard()
-        self.hide()
-        self.cusServDashboard.show()
+        if self.dep == "CS":
+            self.cusServDashboard = cusServDashboard()
+            self.hide()
+            self.cusServDashboard.show()
+        elif self.dep == "HR":
+            self.hrDashboard = hrDashboard()
+            self.hide()
+            self.hrDashboard.show()
 
     # Clear previous queries button
     def clear(self):
@@ -231,7 +236,7 @@ class queryInterface(QMainWindow):
         # create table to store queries
         if self.dep == "CS":
             cur.execute("DELETE FROM QUERIES_LIST_CS")
-        else:
+        elif self.dep == "HR":
             cur.execute("DELETE FROM QUERIES_LIST_HR")
         # commit changes
         conn.commit()
@@ -255,7 +260,7 @@ class queryInterface(QMainWindow):
             cur.execute(
                 f"delete from QUERIES_LIST_CS where rowid = {self.selectedRow + 1} "
             )
-        else:
+        elif self.dep == "HR":
             cur.execute(
                 f"delete from QUERIES_LIST_HR where rowid = {self.selectedRow + 1} "
             )
@@ -269,7 +274,7 @@ class queryInterface(QMainWindow):
         cur = conn.cursor()
         if self.dep == "CS":
             cur.execute("DELETE FROM QUERIES_LIST_CS")
-        else:
+        elif self.dep == "HR":
             cur.execute("DELETE FROM QUERIES_LIST_HR")
         # initialize list to hold queries
         self.items = []
@@ -286,7 +291,7 @@ class queryInterface(QMainWindow):
                         "item": item.text(),
                     },
                 )
-            else:
+            elif self.dep == "HR":
                 cur.execute(
                     f"INSERT INTO QUERIES_LIST_HR VALUES (:item)",
                     {
@@ -308,7 +313,7 @@ class queryInterface(QMainWindow):
             query = """
                 select * from QUERIES_LIST_CS
             """
-        else:
+        elif self.dep == "HR":
             query = """
                 select * from QUERIES_LIST_HR
             """
@@ -337,7 +342,7 @@ class queryInterface(QMainWindow):
         # create table to store queries
         if self.dep == "CS":
             cur.execute("create table if not exists QUERIES_LIST_CS(QUERIES text)")
-        else:
+        elif self.dep == "HR":
             cur.execute("create table if not exists QUERIES_LIST_HR(QUERIES text)")
         # commit changes
         conn.commit()
