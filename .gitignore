@@ -6,6 +6,3 @@ __pycache__/
 
 # ignore db 
 queriesList.db
-
-# virtual environment files
-welbankdev/
