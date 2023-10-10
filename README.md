@@ -2,7 +2,7 @@
 ## Internal Management Software for a Bank using Python, PyQt6 and Oracle Database (cx_Oracle driver)
 
 
-# INTRODUCTION
+# OVERVIEW
 
 This is a simulation of a simple Desktop Application for the internal use of a Bank, using Python.
 
