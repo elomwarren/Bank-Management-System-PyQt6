@@ -21,8 +21,18 @@ This is a simulation of a simple Desktop Application for the internal use of a B
 - pyqtdarktheme
 
 # Requirements
-- Windows machine
+- Windows machine or Red Hat based linux distribution
 - Oracle database 12C or later should be installed on the machine.
 - Pluggable database (PDB) named 'WELBANK'
 - WELBANK database should be populated using the SQL script provided
 - Virtual environment using the aforementioned dependencies
+
+# SCREENSHOTS
+___
+![Alt text](01_MainInterface.png)
+___
+![Alt text](02_Dashboard.png)
+___
+![Alt text](03_EntityWindow.png)
+___
+![Alt text](04_DataQueryTool.png)
