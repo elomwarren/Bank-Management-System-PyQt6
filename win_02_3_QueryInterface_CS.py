@@ -188,7 +188,7 @@ class queryInterface(QMainWindow):
 
         if file_path:
             try:
-                connection = cx_Oracle.connect("elom/elom@localhost:1521/VVBANKING")  # type: ignore
+                connection = cx_Oracle.connect("elom/elom@localhost:1521/WELBANK")  # type: ignore
                 cursor = connection.cursor()
 
                 # Execute the query
@@ -371,7 +371,7 @@ class queryInterface(QMainWindow):
         connection = None
         try:
             connection = cx_Oracle.connect(
-                user=self.usn, password="12345", dsn="localhost:1521/VVBANKING"
+                user=self.usn, password="12345", dsn="localhost:1521/WELBANK"
             )
 
         except cx_Oracle.Error as err:

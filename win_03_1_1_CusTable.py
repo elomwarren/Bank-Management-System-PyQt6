@@ -466,7 +466,7 @@ class entityWindow(QMainWindow):
         # initialize the connection variable
         connection = None
         try:
-            connection = cx_Oracle.connect("elom/elom@localhost:1521/VVBANKING")
+            connection = cx_Oracle.connect("elom/elom@localhost:1521/WELBANK")
 
         except cx_Oracle.Error as err:
             QMessageBox.critical(
@@ -512,7 +512,7 @@ class entityWindow(QMainWindow):
         # initialize the connection variable
         connection = None
         try:
-            connection = cx_Oracle.connect("elom/elom@localhost:1521/VVBANKING")
+            connection = cx_Oracle.connect("elom/elom@localhost:1521/WELBANK")
 
         except cx_Oracle.Error as err:
             QMessageBox.critical(
@@ -571,7 +571,7 @@ class entityWindow(QMainWindow):
         connection = None
         cursor = None
         try:
-            connection = cx_Oracle.connect("elom/elom@localhost:1521/VVBANKING")
+            connection = cx_Oracle.connect("elom/elom@localhost:1521/WELBANK")
             try:
                 cursor = connection.cursor()
                 cursor.execute(
