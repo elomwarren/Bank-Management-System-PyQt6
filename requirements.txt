@@ -1,6 +1,5 @@
 PyQt6
 pyqtdarktheme
 cx_Oracle
-pyinstaller
 pandas
 openpyxl
