@@ -1,5 +1,5 @@
 # Bank Database Management System
-## Internal Management Software for a Bank using PyQt6 and Oracle Database (cx_Oracle driver)
+## Internal Management Software for a Bank using Python, PyQt6 and Oracle Database (cx_Oracle driver)
 
 
 # INTRODUCTION
