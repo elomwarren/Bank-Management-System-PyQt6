@@ -36,3 +36,10 @@ ___
 ![Alt text](03_EntityWindow.png)
 ___
 ![Alt text](04_DataQueryTool.png)
+
+# LIMITATIONS
+
+- Save and Rollback functionalities are decorative. Each insertion is automatically committed (see code).
+- Delete record functionality does not work
+- Transactions recorded will not reflect in Account Balance.
+- Loans payments do not update loan balance.
