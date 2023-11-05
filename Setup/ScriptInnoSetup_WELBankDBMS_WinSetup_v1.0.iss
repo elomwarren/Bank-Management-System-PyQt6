@@ -39,7 +39,6 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 [Files]
 Source: "D:\02_LEARNING_PROJECTS\BankMgmtSystem_IPMC\Bank-Management-System-PyQt6\dist\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "D:\02_LEARNING_PROJECTS\BankMgmtSystem_IPMC\Bank-Management-System-PyQt6\dist\assets\*"; DestDir: "{app}/assets"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\02_LEARNING_PROJECTS\BankMgmtSystem_IPMC\Bank-Management-System-PyQt6\dist\queriesList.db"; DestDir: "{app}/data"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
