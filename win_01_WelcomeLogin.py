@@ -85,28 +85,16 @@ class welcome(QMainWindow):
         # Login buttons
         # EAST LEGON employees usernames
         self.cusServ_dep_usn = [
-            "elom",
+            "welbank",
+            "cs",
             "kwameowusu",
-            "akosuaappiah",
-            "kwesiannan",
-            "amaboateng",
-            "kofiasante",
-            "adwoaaddo",
-            "yawamoah",
-            "abenaacheampong",
-            "kwakuboakye",
-            "akuadwomoh",
-            "yawfrimpong",
-            "adjoagyan",
-            "kwabenakwame",
         ]
 
         # EAST LEGON employees usernames
         self.hr_dep_usn = [
-            "elom",
+            "welbank",
+            "hr",
             "kwadwohanson",
-            "joshuaayivor",
-            "fatimakone",
         ]
         # customer Service login Button
         self.cusServloginButton = QPushButton("Customer Service", clicked=lambda: self.login("cusServDashboard", self.cusServ_dep_usn))  # type: ignore

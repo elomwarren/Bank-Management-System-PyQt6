@@ -188,7 +188,7 @@ class queryInterface(QMainWindow):
 
         if file_path:
             try:
-                connection = cx_Oracle.connect("elom/elom@localhost:1521/WELBANK")  # type: ignore
+                connection = cx_Oracle.connect("welbank/12345@localhost:1521/WELBANK")  # type: ignore
                 cursor = connection.cursor()
 
                 # Execute the query
@@ -363,9 +363,9 @@ class queryInterface(QMainWindow):
             None.
         """
         if dep == "CS":
-            self.usn = "kwameowusu"
+            self.usn = "cs"
         elif dep == "HR":
-            self.usn = "kwadwohanson"
+            self.usn = "hr"
 
         # initialize the connection variable
         connection = None
