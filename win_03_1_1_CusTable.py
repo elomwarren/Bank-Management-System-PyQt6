@@ -27,6 +27,18 @@ import datetime
 import cx_Oracle
 import qdarktheme
 import sys
+import os
+
+
+def resource_path(relative_path):
+    """Get absolute path to resource, works for dev and for PyInstaller"""
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS2
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 
 class entityWindow(QMainWindow):
@@ -45,7 +57,7 @@ class entityWindow(QMainWindow):
         self.setWindowTitle(f"WEL Bank - {self.entity}")
 
         # set WINDOW ICON (icons from icons8.com)
-        self.setWindowIcon(QIcon("./assets/bank.png"))
+        self.setWindowIcon(QIcon(resource_path("./assets/bank.png")))
 
         # Set window size
         width = 800
@@ -80,7 +92,9 @@ class entityWindow(QMainWindow):
         ### File Menu ###
 
         # 'Add' menu item
-        addAction = QAction(QIcon("./assets/add.png"), "&New Record", self)
+        addAction = QAction(
+            QIcon(resource_path("./assets/add.png")), "&New Record", self
+        )
         addAction.setStatusTip("Add a new record")
         addAction.setShortcut("Ctrl+N")
         addAction.triggered.connect(self.newRecord)
@@ -88,7 +102,7 @@ class entityWindow(QMainWindow):
 
         # 'Delete' menu item
         delAction = QAction(
-            QIcon("./assets/remove.png"),
+            QIcon(resource_path("./assets/remove.png")),
             "&Delete",
             self,
         )
@@ -99,7 +113,7 @@ class entityWindow(QMainWindow):
 
         # 'Save' menu item
         saveAction = QAction(
-            QIcon("./assets/save.png"),
+            QIcon(resource_path("./assets/save.png")),
             "&Save Changes",
             self,
         )
@@ -112,7 +126,7 @@ class entityWindow(QMainWindow):
 
         # 'Exit' menu item
         exitAction = QAction(
-            QIcon("./assets/exit.png"),
+            QIcon(resource_path("./assets/exit.png")),
             "&Exit",
             self,
         )
@@ -125,7 +139,7 @@ class entityWindow(QMainWindow):
 
         # 'Undo' menu item
         undoAction = QAction(
-            QIcon("./assets/rollback.png"),
+            QIcon(resource_path("./assets/rollback.png")),
             "&Undo",
             self,
         )
@@ -139,7 +153,7 @@ class entityWindow(QMainWindow):
 
         # 'Cut' menu item
         cutAction = QAction(
-            QIcon("./assets/cut.png"),
+            QIcon(resource_path("./assets/cut.png")),
             "&Cut",
             self,
         )
@@ -150,7 +164,7 @@ class entityWindow(QMainWindow):
 
         # 'Copy' menu item
         copyAction = QAction(
-            QIcon("./assets/copy.png"),
+            QIcon(resource_path("./assets/copy.png")),
             "&Copy",
             self,
         )
@@ -161,7 +175,7 @@ class entityWindow(QMainWindow):
 
         # 'Paste' menu item
         pasteAction = QAction(
-            QIcon("./assets/paste.png"),
+            QIcon(resource_path("./assets/paste.png")),
             "&Paste",
             self,
         )
@@ -174,7 +188,7 @@ class entityWindow(QMainWindow):
 
         # 'Search' menu item
         searchAction = QAction(
-            QIcon("./assets/search.png"),
+            QIcon(resource_path("./assets/search.png")),
             "&Search",
             self,
         )
@@ -187,7 +201,7 @@ class entityWindow(QMainWindow):
 
         # 'About' menu item
         aboutAction = QAction(
-            QIcon("./assets/info.png"),
+            QIcon(resource_path("./assets/info.png")),
             "&About",
             self,
         )
@@ -195,6 +209,7 @@ class entityWindow(QMainWindow):
         aboutAction.setShortcut("F1")
         aboutAction.triggered.connect(self.about)
         self.helpMenu.addAction(aboutAction)  # type: ignore
+
         ################# END OF MENU BAR #################
 
         ##### TOOLBAR #####

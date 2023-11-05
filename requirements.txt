@@ -3,3 +3,4 @@ pyqtdarktheme
 cx_Oracle
 pandas
 openpyxl
+pyinstaller

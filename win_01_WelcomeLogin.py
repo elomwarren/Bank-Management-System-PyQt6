@@ -20,6 +20,18 @@ from win_02_2_HRDashboard import hrDashboard
 import cx_Oracle
 import qdarktheme
 import sys
+import os
+
+# https://stackoverflow.com/a/31966932
+def resource_path(relative_path):
+    """Get absolute path to resource, works for dev and for PyInstaller"""
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS2
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 
 class welcome(QMainWindow):
@@ -31,7 +43,7 @@ class welcome(QMainWindow):
         self.setWindowTitle(windowTitle)
 
         # set WINDOW ICON (icons from icons8.com)
-        self.setWindowIcon(QIcon("./assets/bank.png"))
+        self.setWindowIcon(QIcon(resource_path("./assets/bank.png")))
 
         # Set cream color for the background
         # self.setStyleSheet("background-color: #HEXcode")
@@ -60,7 +72,9 @@ class welcome(QMainWindow):
         ######################### CREATE WIDGETS #########################
         # self.welcomeLabel = QLabel("Welcome to WEL Bank")
         # self.welcomeLabel.setFont(QFont("Century", 28))
-        self.logo = QPixmap("./assets/WEL_Bank-logos_transparent_greentext_300x300.png")
+        self.logo = QPixmap(
+            resource_path("./assets/WEL_Bank-logos_transparent_greentext_300x300.png")
+        )
         self.logolabel = QLabel()
         self.logolabel.setPixmap(self.logo)
         self.logolabel.setAlignment(Qt.AlignmentFlag.AlignCenter)

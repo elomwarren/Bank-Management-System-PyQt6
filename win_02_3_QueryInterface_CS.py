@@ -23,6 +23,18 @@ import sqlite3
 import datetime
 import qdarktheme
 import sys
+import os
+
+
+def resource_path(relative_path):
+    """Get absolute path to resource, works for dev and for PyInstaller"""
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS2
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 
 class queryInterface(QMainWindow):
@@ -38,7 +50,7 @@ class queryInterface(QMainWindow):
         self.connDB()
 
         # set WINDOW ICON
-        self.setWindowIcon(QIcon("./assets/query.png"))
+        self.setWindowIcon(QIcon(resource_path("./assets/query.png")))
 
         # Set window size
         width = 800

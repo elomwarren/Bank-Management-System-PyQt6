@@ -22,6 +22,18 @@ from win_03_1_6_LnpayTable import loansPayment
 # other modules
 import qdarktheme
 import sys
+import os
+
+
+def resource_path(relative_path):
+    """Get absolute path to resource, works for dev and for PyInstaller"""
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS2
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 
 # Construction of class dashboard, blueprint for Customer Service and HR dashboards
@@ -34,7 +46,7 @@ class dashboard(QMainWindow):
         self.setWindowTitle("Dashboard")
 
         # set WINDOW ICON (icons from icons8.com)
-        self.setWindowIcon(QIcon("./assets/bank.png"))
+        self.setWindowIcon(QIcon(resource_path("./assets/bank.png")))
 
         # Set window size
         width = 800
@@ -81,7 +93,7 @@ class dashboard(QMainWindow):
 
         # Push button for Data Query Wizard
         self.dataQueryWizardButton = QPushButton("Data Query Wizard", clicked=lambda: self.dataQueryWizard())  # type: ignore
-        self.dataQueryWizardButton.setIcon(QIcon("./assets/query.png"))
+        self.dataQueryWizardButton.setIcon(QIcon(resource_path("./assets/query.png")))
 
         # Logout Push button
         self.logoutButton = QPushButton("Logout", clicked=lambda: self.logout())  # type: ignore
