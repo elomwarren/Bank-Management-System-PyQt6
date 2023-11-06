@@ -5,7 +5,7 @@ license.txt
 __pycache__/
 
 # ignore db 
-queriesList.db
+*.db
 
 # ignore json file
 *.json
