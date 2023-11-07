@@ -283,7 +283,7 @@ class queryInterface(QMainWindow):
 
     # SECONDARY FUNCTIONS
     def saveQueriesToDB(self):
-        conn = sqlite3.connect("queriesList.db")
+        conn = sqlite3.connect(resource_path("./data/queriesList.db"))
         cur = conn.cursor()
         if self.dep == "CS":
             cur.execute("DELETE FROM QUERIES_LIST_CS")
