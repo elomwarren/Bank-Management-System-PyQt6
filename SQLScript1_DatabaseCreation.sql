@@ -9,6 +9,7 @@ grant all privileges to welbank;
 
 -- The tables will be created for user <welbank>
 -- Connect to the <WELBANK> database with USER <welbank> to run the following script (using SQLPLUS, SQL Developer or any other tool)
+-- conn welbank/12345@localhost:1521/welbank -- connection string using SQLPLUS
 
 ------------------- DATABASE CREATION SCRIPT -------------------
 

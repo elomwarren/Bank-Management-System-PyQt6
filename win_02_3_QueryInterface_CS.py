@@ -243,7 +243,7 @@ class queryInterface(QMainWindow):
     # Clear previous queries button
     def clear(self):
         # Create a database or connect to one
-        conn = sqlite3.connect("queriesList.db")
+        conn = sqlite3.connect(resource_path("./data/queriesList.db"))
         cur = conn.cursor()
         # create table to store queries
         if self.dep == "CS":
@@ -264,7 +264,7 @@ class queryInterface(QMainWindow):
         # Delete selected row
         self.listQueries.takeItem(self.selectedRow)
         # Create a database or connect to one
-        conn = sqlite3.connect("queriesList.db")
+        conn = sqlite3.connect(resource_path("./data/queriesList.db"))
         cur = conn.cursor()
 
         # create table to store queries
@@ -278,6 +278,7 @@ class queryInterface(QMainWindow):
             )
         # commit changes
         conn.commit()
+        cur.close()
         conn.close()
 
     # SECONDARY FUNCTIONS
@@ -313,11 +314,12 @@ class queryInterface(QMainWindow):
 
         # DB operations
         conn.commit()
+        cur.close()
         conn.close()
 
     def grabFromDB(self):
         # Create a database or connect to one
-        conn = sqlite3.connect("queriesList.db")
+        conn = sqlite3.connect(resource_path("./data/queriesList.db"))
         cur = conn.cursor()
 
         # create table to store queries
@@ -334,6 +336,7 @@ class queryInterface(QMainWindow):
 
         # commit changes
         conn.commit()
+        cur.close()
         conn.close()
 
         # loop through records and add to listWidget
@@ -348,16 +351,17 @@ class queryInterface(QMainWindow):
         creates table to store queries if it doesn't exist
         """
         # Create a database or connect to one
-        conn = sqlite3.connect("queriesList.db")
+        conn = sqlite3.connect(resource_path("./data/queriesList.db"))
         cur = conn.cursor()
 
         # create table to store queries
         if self.dep == "CS":
-            cur.execute("create table if not exists QUERIES_LIST_CS(QUERIES text)")
+            cur.execute("create table if not exists QUERIES_LIST_CS (QUERIES text)")
         elif self.dep == "HR":
-            cur.execute("create table if not exists QUERIES_LIST_HR(QUERIES text)")
+            cur.execute("create table if not exists QUERIES_LIST_HR (QUERIES text)")
         # commit changes
         conn.commit()
+        cur.close()
         conn.close()
 
     ##################### END OF BUTTON FUNCTIONS #####################
