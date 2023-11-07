@@ -242,11 +242,14 @@ class queryInterface(QMainWindow):
 
     # Clear previous queries button
     def clear(self):
-        # Create a database or connect to one:
-        conn = sqlite3.connect(resource_path("./data/queriesListCS.db"))
+        # Create a database or connect to one
+        conn = sqlite3.connect(resource_path("./data/queriesList.db"))
         cur = conn.cursor()
         # create table to store queries
-        cur.execute("DELETE FROM QUERIES_LIST_CS")
+        if self.dep == "CS":
+            cur.execute("DELETE FROM QUERIES_LIST_CS")
+        elif self.dep == "HR":
+            cur.execute("DELETE FROM QUERIES_LIST_HR")
         # commit changes
         conn.commit()
         cur.close()
@@ -260,14 +263,19 @@ class queryInterface(QMainWindow):
         self.selectedRow = self.listQueries.currentRow()
         # Delete selected row
         self.listQueries.takeItem(self.selectedRow)
-        # Connect to database
-        conn = sqlite3.connect(resource_path("./data/queriesListCS.db"))
+        # Create a database or connect to one
+        conn = sqlite3.connect(resource_path("./data/queriesList.db"))
         cur = conn.cursor()
 
-        # display table
-        cur.execute(
-            f"delete from QUERIES_LIST_CS where rowid = {self.selectedRow + 1} "
-        )
+        # create table to store queries
+        if self.dep == "CS":
+            cur.execute(
+                f"delete from QUERIES_LIST_CS where rowid = {self.selectedRow + 1} "
+            )
+        elif self.dep == "HR":
+            cur.execute(
+                f"delete from QUERIES_LIST_HR where rowid = {self.selectedRow + 1} "
+            )
         # commit changes
         conn.commit()
         cur.close()
@@ -275,9 +283,12 @@ class queryInterface(QMainWindow):
 
     # SECONDARY FUNCTIONS
     def saveQueriesToDB(self):
-        conn = sqlite3.connect(resource_path("./data/queriesListCS.db"))
+        conn = sqlite3.connect("queriesList.db")
         cur = conn.cursor()
-        cur.execute("DELETE FROM QUERIES_LIST_CS")
+        if self.dep == "CS":
+            cur.execute("DELETE FROM QUERIES_LIST_CS")
+        elif self.dep == "HR":
+            cur.execute("DELETE FROM QUERIES_LIST_HR")
         # initialize list to hold queries
         self.items = []
         # loop through listWidget to pull out each query/item
@@ -286,12 +297,20 @@ class queryInterface(QMainWindow):
 
         for item in self.items:
             # add items to the database
-            cur.execute(
-                f"INSERT INTO QUERIES_LIST_CS VALUES (:item)",
-                {
-                    "item": item.text(),
-                },
-            )
+            if self.dep == "CS":
+                cur.execute(
+                    f"INSERT INTO QUERIES_LIST_CS VALUES (:item)",
+                    {
+                        "item": item.text(),
+                    },
+                )
+            elif self.dep == "HR":
+                cur.execute(
+                    f"INSERT INTO QUERIES_LIST_HR VALUES (:item)",
+                    {
+                        "item": item.text(),
+                    },
+                )
 
         # DB operations
         conn.commit()
@@ -300,12 +319,17 @@ class queryInterface(QMainWindow):
 
     def grabFromDB(self):
         # Create a database or connect to one
-        conn = sqlite3.connect(resource_path("./data/queriesListCS.db"))
+        conn = sqlite3.connect(resource_path("./data/queriesList.db"))
         cur = conn.cursor()
 
-        # display table content
-        query = """
+        # create table to store queries
+        if self.dep == "CS":
+            query = """
                 select * from QUERIES_LIST_CS
+            """
+        elif self.dep == "HR":
+            query = """
+                select * from QUERIES_LIST_HR
             """
         cur.execute(query)
         records = cur.fetchall()
@@ -321,18 +345,21 @@ class queryInterface(QMainWindow):
 
     def connDB(self):
         """
-        Arg: None
+        Arg: SQL query
         Returns: None
         connects to sqlite database,
         creates table to store queries if it doesn't exist
         """
         # Create a database or connect to one
-        conn = sqlite3.connect(resource_path("./data/queriesListCS.db"))
+        conn = sqlite3.connect(resource_path("./data/queriesList.db"))
         cur = conn.cursor()
 
         # create table to store queries
-        cur.execute("create table if not exists QUERIES_LIST_CS (QUERIES text)")
-        # close connection
+        if self.dep == "CS":
+            cur.execute("create table if not exists QUERIES_LIST_CS (QUERIES text)")
+        elif self.dep == "HR":
+            cur.execute("create table if not exists QUERIES_LIST_HR (QUERIES text)")
+        # commit changes
         conn.commit()
         cur.close()
         conn.close()
